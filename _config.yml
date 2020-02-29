@@ -1,5 +1,5 @@
 locale: "en-US"
-title: Strata # Title of your site
+title: JH # Title of your site
 url: "https://github.com/jh9875/jh9875.github.io.git" # the base hostname & protocol for your site
 baseurl: "" # the subpath of your site, e.g. /blog/
 google_analytics_key: ""
