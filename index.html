@@ -1,38 +1,51 @@
 ---
 layout: default
 ---
-<div id="main">
-  <section>
-    {% for post in site.posts limit:1 %}
-      <header>
-        <h1>{{ post.title }}</h1>
-        <p class="post-meta">{{ post.date | date: "%b %-d, %Y" }}{% if post.author %} • {{ post.author }}{% endif %}{% if page.meta %} • {{ page.meta }}{% endif %}</p>
-      </header>
-      <section>
-        {{ post.content }}
-        <p class="editor-link"><a href="cloudcannon:collections/{{ post.path }}" class="button"><strong>&#9998;</strong> Edit post</a></p>
-      </section>
-    {% endfor %}
-  </section>
 
-  <section>
-    <div class="row">
-      {% for post in site.posts offset:1 %}
-        <article class="{% cycle '6u', '6u$' %} 12u(small)">
-          <header>
-            <h2><a href="{{ post.url }}">{{ post.title }}</a></h2>
-          </header>
-          <section>
-            {{ post.excerpt }}
-          </section>
-          <footer>
-            <ul class="actions">
-              <li><a href="{{ post.url }}" class="button">Read More</a></li>
-              <li class="editor-link"><a href="cloudcannon:collections/{{ post.path }}" class="button"><strong>&#9998;</strong> Edit post</a></li>
-            </ul>
-          </footer>
-        </article>
-      {% endfor %}
-    </div>
-  </section>
-</div>
+  <!-- article -->
+  {% for post in site.posts limit:10 %}
+    <article class="article">
+      <h2 class="article__title">
+        <a href="{{ post.url | prepend: site.baseurl }}">{{ post.title }}</a>
+        <time datetime="{{ post.date | date: "%Y-%m-%d" }}">{{ post.date | date: "%b %-d, %Y" }}</time>
+      </h2>
+      {% if post.cover_display %}
+        <a class="article__cover_thumbnail" href="{{ post.url | prepend: site.baseurl }}">
+            <div class="article_cover_image">
+                <div style="background-image:url('{{ post.cover }}')"></div>
+            </div>
+            <div class="article_cover_desc">
+                <p class="article__excerpt">
+                  {% if post.description %}
+                    {{ post.description | truncate: 100 }}
+                  {% else %}
+                  {% endif %}
+              </p>
+            </div>
+        </a>
+      {% else %}
+        <p class="article__excerpt">
+            {% if post.description %}
+              {{ post.description }}
+            {% else %}
+            {% endif %}
+        </p>
+      {% endif %}
+    </article>
+  {% endfor %}
+  <!-- / article -->
+  <span class="article__align-right">
+      <a href="/archive/">more</a>
+  </span>
+
+    <!-- <nav class="blocks blocks--space">
+      <div class="blocks__item">
+        {% if paginator.previous_page %}<a href="{{ paginator.previous_page_path }}">Previous</a>{% endif %}
+      </div>
+      <div class="blocks__item">
+        Page: {{ paginator.page }} of {{ paginator.total_pages }}
+      </div>
+      <div class="blocks__item">
+        {% if paginator.next_page %}<a href="{{ paginator.next_page_path }}">Next</a>{% endif %}
+      </div>
+    </nav> -->

@@ -1,52 +1,40 @@
-locale: "en-US"
-title: JH # Title of your site
+# Site configuration
+domain: "http://songroger.win"
+baseurl: "" # the subpath of your site, e.g. /blog
 url: "https://github.com/jh9875/jh9875.github.io.git" # the base hostname & protocol for your site
-baseurl: "" # the subpath of your site, e.g. /blog/
-google_analytics_key: ""
+permalink: /:title/
+avatar: /murmur/assets/avatar.jpg
+about: /murmur/assets/about.jpg
+favicon: /murmur/assets/favicon.ico
+basecss: 
+# Theme specific configuration
+title: songroger
+description: >
+  Hi there, My name is Luozhan.Song, usually I use "songroger" as my ID everywhere.
+  I was born and raised in Hunan China. 
+  I'm really fond of beautiful design, drawing etc.
 
-# Default description in social shares for the jekyll-seo-tag gem
-description: > # this means to ignore newlines until "baseurl:"
-  Write an awesome description for your new site here. You can edit this
-  line in _config.yml. It will appear in your document head meta (for
-  Google search results) and in your feed.xml site description.
+# Contact and social media links
+twitter_username: songrogero
+github_username: songroger
+facebook_username: song.roger.1
+instagram_username: songroger198
+linkedin_username: songroger
 
-# Author details for the jekyll-seo-tag gem
-author:
-  name: Your Name
-  email: your-email@domain.com
-  twitter: # twitter username without the @ symbol
+exclude: ['node_modules', 'gulpfile.js', 'package.json']
 
-# Social details for the jekyll-seo-tag gem
-social:
-  name: Strata Reloaded Template
-  links:
-    - https://github.com/comfusion/strata-reloaded-jekyll-template
+kramdown:
+  input: GFM
 
-permalink: pretty
+# If U enable the comment, edit disqus or duoshuo account
+# before deploy your webpage
+enable_comment: false
+# disqus_account: songroger
 
-gems:
-  - "jekyll-feed"
-  - "jekyll-seo-tag"
-  - "jekyll-paginate"
-  - "jekyll-sitemap"
+# gems: ['jekyll-paginate']
+# Pagination
+paginate: 5
+paginate_path: /archive/page:num
 
-# Jekyll SEO Tag
-webmaster_verifications:
-  google: # 1234
-  bing: # 1234
-  alexa: # 1234
-  yandex: # 1234
-
-# -----------
-# CloudCannon
-
-social_icons:
-  - Facebook
-  - Google Plus
-  - Instagram
-  - LinkedIn
-  - Pinterest
-  - Tumblr
-  - Twitter
-  - YouTube
-  - RSS
+plugins:
+    - jekyll-paginate
