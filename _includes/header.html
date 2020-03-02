@@ -1,24 +1,13 @@
-  <header class="header">
-
-    {% if site.avatar %}
-      <div class="header__logo">
-        <a href="{{ site.baseurl }}/" class="header__link--logo">
-        <!-- <div class="spinner"></div> -->
-        <img src="{{ site.avatar }}"></a>
-      </div>
-    {% else %}
-      <h1 class="header__logo">
-        <a href="{{ site.baseurl }}/" class="header__link--logo">{{ site.title }}</a>
-      </h1>
-    {% endif %}
-
-    <nav class="header__nav" role="navigation">      
-      <a href="{{ site.baseurl }}/archive/" class="header__link">Archive</a>
-      <a href="http://twitter.com/{{ site.twitter_username }}" class="header__link" target="_blank">Twitter</a>
-      <!-- <a href="http://github.com/{{ site.github_username }}" class="header__link" target="_blank">Github</a> -->
-      <a href="http://facebook.com/{{ site.facebook_username }}" class="header__link" target="_blank">Facebook</a>
-      <a href="{{ site.baseurl }}/about/" class="header__link">About</a>
+<div class="header-placeholder"></div>
+<header class="header">
+  <div class="wrapper">
+    <div id="sidebar-toggle">TOC</div>
+    <a class="site-title" href="{{ site.baseurl }}/">{{ site.title }}</a>
+    <nav class="site-nav">
+      {% for link in site.header.links %}{% assign url = link[1] %}
+        {% assign urlchk = url | split: "/" %}{% if urlchk[0] == '' and urlchk[1] != '' %}{% assign uprefix = site.baseurl %}{% else %}{% assign uprefix = ''%}{% endif %}
+        <a class="page-link" href="{{ url | prepend: uprefix }}">{{ link[0] }}</a>
+      {% endfor %}
     </nav>
-  </header>
-
-  <main class="col">
+  </div>
+</header>
