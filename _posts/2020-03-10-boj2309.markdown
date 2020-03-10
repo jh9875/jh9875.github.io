@@ -4,7 +4,7 @@ title:  "[Baejoon] 2309번: 일곱 난쟁이"
 date:   2020-03-10
 categories: BAEKJOON
 permalink: /archivers/boj2309
-tags: [brute_force]
+tags: [baekjoon , brute_force]
 ---
 
 test
