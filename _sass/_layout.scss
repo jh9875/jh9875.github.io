@@ -257,17 +257,3 @@ $hide-sidebar-screen-width: 1120px;
 	}
 }
 
-.tag {
-  .tagname {
-    transition: all 0.1s ease-in-out;
-    display: inline-block;
-    margin-left: 10px;
-    &:hover {
-      transform : scale(1.1);
-      -webkit-transform : scale(1.1);
-    }
-    a {
-      color: $grey-color;
-    }
-  }
-}
