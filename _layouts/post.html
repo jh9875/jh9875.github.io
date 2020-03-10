@@ -6,14 +6,14 @@ layout: default
   <header class="post-header">
     <h1 class="post-title">{{ page.title }}</h1>
     <p class="post-meta">{{ page.date | date: "%b %-d, %Y" }}{% if page.author %} • {{ page.author }}{% endif %}{% if page.meta %} • {{ page.meta }}{% endif %}</p>
-    <br>
+    <p>
 {% if page.tags != empty %}
   [{% for tag in page.tags %}
       <a href="/tags/archives#{{ tag | escape }}">{{tag}}</a>
       {% if forloop.index != page.tags.size %},{% endif %} 
     {% endfor %}]
 {% endif %}
-  <br>
+  </p>
 
   </header>
 
