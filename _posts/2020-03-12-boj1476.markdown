@@ -4,7 +4,7 @@ title:  "[Baejoon] 1476번: 날짜 계산"
 date:   2020-03-12
 categories: PROBLEM_SOLVING
 permalink: /archivers/boj1476
-tags: [baekjoon , brute_force, math]
+tags: [brute_force, math]
 ---
 
 ## 문제

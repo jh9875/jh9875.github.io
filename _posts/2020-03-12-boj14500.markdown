@@ -4,7 +4,7 @@ title:  "[Baejoon] 14500번: 테트로미노"
 date:   2020-03-12
 categories: PROBLEM_SOLVING
 permalink: /archivers/boj14500
-tags: [baekjoon , brute_force]
+tags: [brute_force]
 ---
 
 ## 문제

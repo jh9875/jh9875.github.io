@@ -4,7 +4,7 @@ title:  "[Baejoon] 1260번: DFS와 BFS"
 date:   2020-03-13
 categories: PROBLEM_SOLVING
 permalink: /archivers/boj1260
-tags: [baekjoon , bfs, dfs]
+tags: [bfs, dfs]
 ---
 
 ## 문제
@@ -35,8 +35,8 @@ static void dfs(int index)
 
 재귀함수를 이용해서 구현했다. 현재 위치를 index라고 하고, 다음 이동할 수 있는 위치를 구하기 위해서
 반복문으로 2개지 조건을 확인한다.
--정점이 이어져 있는가?
--아직 방문하지 않았는가?
+- 정점이 이어져 있는가?
+- 아직 방문하지 않았는가?
 
 조건을 만족하면 방문한 위치를 표시하고, 경로를 기록하고 다음 정점으로 이동해 같은 동작을 반복한다.   
 이런식으로 갈 수 있는 모든 정점을 반복하면 함수는 차례대로 종료된다.   
@@ -67,8 +67,10 @@ static void bfs()
 	}
 ~~~
 
+
 bfs는 큐를 이용해서 구현했다. 인접한 정점들을 우선순위로 방문하기 위해서이다.   
 bfs도 마찬가지로 dfs와 비슷한 조건을 만족하면 경로에 기록한다. 코드가 단순해서 설명할게 없다.   
+
 
 ~~~java
 import java.io.BufferedReader;
