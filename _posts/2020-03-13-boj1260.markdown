@@ -1,0 +1,176 @@
+---
+layout: post
+title:  "[Baejoon] 1260번: DFS와 BFS"
+date:   2020-03-13
+categories: PROBLEM_SOLVING
+permalink: /archivers/boj1260
+tags: [baekjoon , bfs, dfs]
+---
+
+## 문제
+
+문제에서 정점의 갯수, 간선의 갯수, 탐색 시작할 번호가 주어지고, 각 간선이 주어지면
+DFS를 한 결과와 BFS를 한 결과를 출력하는 문제이다.
+
+문제 링크 : <https://www.acmicpc.net/problem/1260>   
+
+## 풀이
+이 문제는 그래프가 주어지면 그대로 dfs, bfs를 하면 되는 문제이다.   
+각각의 함수를 구현했다. 일단 dfs를 보자.   
+
+~~~java
+static void dfs(int index)
+	{
+		for(int next =1; next <=N; next++)
+		{
+			if(graph[index][next] && !visited[next])
+			{
+				visited[next] =true;
+				ans.add(next);
+				dfs(next);
+			}
+		}
+	}
+~~~
+
+재귀함수를 이용해서 구현했다. 현재 위치를 index라고 하고, 다음 이동할 수 있는 위치를 구하기 위해서
+반복문으로 2개지 조건을 확인한다.
+-정점이 이어져 있는가?
+-아직 방문하지 않았는가?
+
+조건을 만족하면 방문한 위치를 표시하고, 경로를 기록하고 다음 정점으로 이동해 같은 동작을 반복한다.   
+이런식으로 갈 수 있는 모든 정점을 반복하면 함수는 차례대로 종료된다.   
+
+다음으로 bfs코드를 보자.
+
+~~~java
+static void bfs()
+	{
+		Queue<Integer> queue =new LinkedList<>();
+		visited[V] =true;
+		queue.add(V);
+		
+		while(!queue.isEmpty())
+		{
+			int v =queue.poll();
+			ans.add(v);
+			
+			for(int next =1; next <=N; next++)
+			{
+				if(graph[v][next] && !visited[next])
+				{
+					visited[next] =true;
+					queue.add(next);
+				}
+			}
+		}
+	}
+~~~
+
+bfs는 큐를 이용해서 구현했다. 인접한 정점들을 우선순위로 방문하기 위해서이다.   
+bfs도 마찬가지로 dfs와 비슷한 조건을 만족하면 경로에 기록한다. 코드가 단순해서 설명할게 없다.   
+
+~~~java
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.Queue;
+import java.util.StringTokenizer;
+
+public class Main
+{
+	static int N, M, V;
+	static boolean[][] graph;
+	static boolean[] visited;
+	static ArrayList<Integer> ans =new ArrayList<>();
+	
+	public static void main(String[] args) throws Exception
+	{
+		BufferedReader br =new BufferedReader(new InputStreamReader(System.in));
+		StringTokenizer st;
+		int a, b;
+		
+		st =new StringTokenizer(br.readLine());
+		N =Integer.parseInt(st.nextToken());
+		M =Integer.parseInt(st.nextToken());
+		V=Integer.parseInt(st.nextToken());
+		graph =new boolean[N+1][N+1];
+		visited =new boolean[N+1];
+		
+		for(int i =0; i <M; i++)
+		{
+			st =new StringTokenizer(br.readLine());
+			a =Integer.parseInt(st.nextToken());
+			b =Integer.parseInt(st.nextToken());
+			graph[a][b] =true;
+			graph[b][a] =true;
+		}
+		solve();
+	}
+	
+	static void solve()	throws Exception
+	{
+		BufferedWriter bw =new BufferedWriter(new OutputStreamWriter(System.out));
+		//dfs
+		ans.add(V);
+		visited[V] =true;
+		dfs(V);
+		for(int v : ans)
+			bw.write(v +" ");
+		bw.write("\n");
+		
+		Arrays.fill(visited, false);
+		ans.clear();
+		
+		//bfs
+		bfs();
+		for(int v : ans)
+			bw.write(v +" ");
+		bw.write("\n");
+		
+		bw.flush();
+	}
+	
+	static void dfs(int index)
+	{
+		for(int next =1; next <=N; next++)
+		{
+			if(graph[index][next] && !visited[next])
+			{
+				visited[next] =true;
+				ans.add(next);
+				dfs(next);
+			}
+		}
+	}
+	
+	static void bfs()
+	{
+		Queue<Integer> queue =new LinkedList<>();
+		visited[V] =true;
+		queue.add(V);
+		
+		while(!queue.isEmpty())
+		{
+			int v =queue.poll();
+			ans.add(v);
+			
+			for(int next =1; next <=N; next++)
+			{
+				if(graph[v][next] && !visited[next])
+				{
+					visited[next] =true;
+					queue.add(next);
+				}
+			}
+		}
+	}
+}
+~~~
+
+전체코드
+
