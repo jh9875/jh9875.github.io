@@ -3,7 +3,7 @@ layout: post
 title:  "[Baejoon] 11726번: 2xn 타일링"
 date:   2020-03-13
 categories: PROBLEM_SOLVING
-permalink: /archivers/boj114726
+permalink: /archivers/boj11726
 tags: [dp]
 ---
 

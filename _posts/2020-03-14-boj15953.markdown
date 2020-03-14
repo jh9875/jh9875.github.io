@@ -1,0 +1,117 @@
+---
+layout: post
+title:  "[Baejoon] 15953번: 상금 헌터"
+date:   2020-03-14
+categories: PROBLEM_SOLVING
+permalink: /archivers/boj15953
+tags: [math]
+---
+
+## 문제
+
+2번의 코드 페스티벌이 있고, 각 코드 페스티벌 마다 상금이 다르다.   
+상금 표는 다음과 같다.
+
+1회 코드 페스티벌   
+| 순위 | 상금 | 인원
+|:---|---:|:---:|
+|1등 |	500만원 | 1명
+|2등 |	300만원 |	2명
+|3등 |	200만원 |	3명
+|4등 |	50만원  |	4명
+|5등 |	30만원  |	5명
+|6등 |	10만원  |	6명
+
+2회 코드 페스티벌   
+| 순위 | 상금 | 인원
+|:---|---:|:---:|
+|1등 |	512만원 | 1명
+|2등 |	256만원 |	2명
+|3등 |	128만원 |	4명
+|4등 |	64만원  |	8명
+|5등 |	32만원  |	16명
+
+문제의 테스트 케이스가 주어지고 각 등수가 주어질 때 받을 상금을 계산하는 문제이다.
+
+문제 링크 : <https://www.acmicpc.net/problem/15953>   
+
+## 풀이
+처음 문제를 봤을 때 정답률이 30퍼센트 대라서 문제가 어려울거라 생각했다.   
+근데 문제를 읽고 어떤식으로 해결할 것인지 생각해보니까 어려운 식을 짤 필요 없이
+그냥 등수에 따라 상금 범위를 나누면 된다. 
+
+결과는 통과다.
+
+다만 실수하기 쉬운 부분이 있다면   
+등수에 들지 못한 경우는 a, b가 0으로 되서, a <2 (1등인 경우) 이런경우는
+잘못된 값을 나올 수 있다.
+
+~~~java
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.util.StringTokenizer;
+
+public class Main
+{
+	
+	public static void main(String[] args) throws Exception
+	{
+		BufferedReader br =new BufferedReader(new InputStreamReader(System.in));
+		BufferedWriter bw =new BufferedWriter(new OutputStreamWriter(System.out));
+		StringTokenizer st;
+		int T, a, b;
+		
+		T =Integer.parseInt(br.readLine());
+		
+		while(T-- >0)
+		{
+			st =new StringTokenizer(br.readLine());
+			a =Integer.parseInt(st.nextToken());
+			b =Integer.parseInt(st.nextToken());
+			bw.write(getRating(a, b) +"\n");
+		}
+		bw.flush();
+	}
+	
+	static int getRating(int a, int b)
+	{
+		int sum =0;
+		//1회 상금
+		if(a !=0)
+		{
+			if(a <2)
+				sum =5000000;
+			else if(a <4)
+				sum =3000000;
+			else if(a <7)
+				sum =2000000;
+			else if(a <11)
+				sum =500000;
+			else if(a <16)
+				sum =300000;
+			else if(a <22)
+				sum =100000;
+		}
+		//2회 상금
+		if(b !=0)
+		{
+			if(b >0 && b <2)
+				sum +=5120000;
+			else if(b <4)
+				sum +=2560000;
+			else if(b <8)
+				sum +=1280000;
+			else if(b <16)
+				sum +=640000;
+			else if(b <32)
+				sum +=320000;
+		}
+		return sum;
+	}
+}
+~~~
+
+전체 코드
+
