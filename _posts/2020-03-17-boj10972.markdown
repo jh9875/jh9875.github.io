@@ -26,7 +26,7 @@ idx부터 N-1까지를 오른쪽 부분이라고 하자.
 swap한다.   
 3. 오른쪽 부분을 오름차순 정렬한다.   
 
-참고 : https://kwanghyuk.tistory.com/25
+참고 : <https://kwanghyuk.tistory.com/25>
 
 코드를 구현하면 아래와 같다.   
 
