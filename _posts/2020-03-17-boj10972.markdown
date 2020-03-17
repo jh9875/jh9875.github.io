@@ -1,0 +1,104 @@
+---
+layout: post
+title:  "[Baejoon] 10972번: 다음 순열"
+date:   2020-03-17
+categories: PROBLEM_SOLVING
+permalink: /archivers/boj10972
+tags: [brute_force]
+---
+
+## 문제
+
+문제에서 주어진 순열의 사전순으로 다음에 오는 순열을 구하는 문제이다.
+
+문제 링크 : <https://www.acmicpc.net/problem/10972>   
+
+## 풀이
+일단 문제의 입력이 최대 10000이다. 그렇기 때문에 모든 경우를 시도해 볼 수 없다.   
+나는 규칙을 찾을 수 없어서 다른 사람의 풀이를 참고하고 풀었다.   
+그 규칙은 다음과 같다.
+
+1. 수열의 인덱스를 idx라고 하고, 뒤에서부터 앞으로 검사하면서 값이 idx-1 <idx 인 부분을
+찾아야 한다.   
+수열의 인덱스가 0인 부분부터 idx-1인 부분을 왼쪽부분이라 하고,
+idx부터 N-1까지를 오른쪽 부분이라고 하자.   
+2. 오른쪽부분의 오른쪽부터 왼쪽으로 움직이면서 idx-1보다 크면 idx-1과 그 부분을
+swap한다.   
+3. 오른쪽 부분을 오름차순 정렬한다.   
+
+참고 : https://kwanghyuk.tistory.com/25
+
+코드를 구현하면 아래와 같다.   
+
+~~~java
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.StringTokenizer;
+
+public class Main
+{
+	public static void main(String[] args) throws Exception
+	{
+		BufferedReader br =new BufferedReader(new InputStreamReader(System.in));
+		BufferedWriter bw =new BufferedWriter(new OutputStreamWriter(System.out));
+		StringTokenizer st;
+		int N;
+		int[] arr;
+		ArrayList<Integer> ans;
+	
+		N =Integer.parseInt(br.readLine());
+		arr =new int[N];
+		st =new StringTokenizer(br.readLine());
+		for(int i =0 ; i <N; i++)
+			arr[i] =Integer.parseInt(st.nextToken());
+		ans =solve(N, arr);
+		if(ans.size() ==0)
+			bw.write("-1\n");
+		else
+		{
+			for(int n : ans)
+				bw.write(n +" ");
+		}
+		
+		bw.flush();
+	}
+	static ArrayList<Integer> solve(int N, int[] arr)
+	{
+		ArrayList<Integer> ans =new ArrayList<>();
+		boolean find =false;
+		for(int i =N-1; i >0; i--)
+		{
+			if(arr[i-1] <arr[i])
+			{
+				for(int j =N-1; j >i-1; j--)
+				{
+					if(arr[i-1] <arr[j])
+					{
+						int temp =arr[i-1];
+						arr[i-1] =arr[j];
+						arr[j] =temp;
+						find =true;
+						break;
+					}
+				}
+				if(find)
+				{
+					Arrays.sort(arr, i, N);
+					for(int j =0; j <N; j++)
+						ans.add(arr[j]);
+					break;
+				}
+			}
+		}
+		return ans;
+	}
+}
+~~~
+
+전체 코드
+

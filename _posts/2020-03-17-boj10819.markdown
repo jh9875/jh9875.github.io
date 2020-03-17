@@ -1,0 +1,112 @@
+---
+layout: post
+title:  "[Baejoon] 10819번: 차이를 최대로"
+date:   2020-03-17
+categories: PROBLEM_SOLVING
+permalink: /archivers/boj10819
+tags: [brute_force]
+---
+
+## 문제
+
+N개의 정수로 이루어진 배열 A가 있을 때 정수의 순서를 바꿔서 다음 식의 최댓값을 구하는 문제이다.
+
+> |A[0] - A[1]| + |A[1] - A[2]| + ... + |A[N-2] - A[N-1]|
+
+문제 링크 : <https://www.acmicpc.net/problem/10819>   
+
+## 풀이
+일단 이 문제의 입력 N의 최댓값이 8이다.   
+즉 단순한 방법으로 푸는게 효율적이라는 것이다.   
+그래서 모든 경우의 수를 탐색해보고, 그 중 최댓값을 구하는 방식으로 해결하려고 한다.
+
+코드의 핵심부분은 다음과 같다.
+
+~~~java
+static int solve(int index)
+{
+	if(index ==N)
+		return getValue();
+	int ret =0;
+	for(int i =0; i <N; i++)
+	{
+		if(!picked[i])
+		{
+			picked[i] =true;
+			arr[index] =inputData[i];
+			ret =Math.max(ret, solve(index+1));
+			picked[i] =false;
+		}
+	}
+	return ret;
+}
+~~~
+
+solve함수의 파라미터는 순서를 바꾼 배열의 인덱스이다.   
+순서를 바꾼 배열을 arr이라고 하면, arr의 처음부터 N-1까지 들어갈 수를 정해주는 함수이다.   
+반복문을 통해 아직 고르지 않은 수를 해당 인덱스에 넣어주고, 다음에 올 데이터를 고르기 위해
+재귀함수로 호출한다.   
+모두 골랐다면 getValue함수를 통해 값을 반환한다.
+picked라는 boolean 배열을 통해 중복되지 않게 했다.
+
+~~~java
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.util.StringTokenizer;
+
+public class Main
+{
+	static int N;
+	static int[] inputData;
+	static int[] arr;
+	static boolean[] picked;
+	
+	public static void main(String[] args) throws Exception
+	{
+		BufferedReader br =new BufferedReader(new InputStreamReader(System.in));
+		BufferedWriter bw =new BufferedWriter(new OutputStreamWriter(System.out));
+		StringTokenizer st;
+		int ans;
+		
+		N =Integer.parseInt(br.readLine());
+		inputData =new int[N];
+		arr =new int[N];
+		picked =new boolean[N];
+		st =new StringTokenizer(br.readLine());
+		for(int i =0; i <N; i++)
+			inputData[i] =Integer.parseInt(st.nextToken());
+		ans =solve(0);
+		bw.write(ans +"\n");
+		bw.flush();
+	}
+	static int solve(int index)
+	{
+		if(index ==N)
+			return getValue();
+		int ret =0;
+		for(int i =0; i <N; i++)
+		{
+			if(!picked[i])
+			{
+				picked[i] =true;
+				arr[index] =inputData[i];
+				ret =Math.max(ret, solve(index+1));
+				picked[i] =false;
+			}
+		}
+		return ret;
+	}
+	static int getValue()
+	{
+		int ret =0;
+		for(int i =0; i <N-1; i++)
+			ret +=Math.abs(arr[i]-arr[i+1]);
+		return ret;
+	}
+}
+~~~
+
+전체 코드
+
