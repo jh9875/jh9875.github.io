@@ -1,0 +1,104 @@
+---
+layout: post
+title:  "[Baejoon] 10974번: 모든 순열"
+date:   2020-03-17
+categories: PROBLEM_SOLVING
+permalink: /archivers/boj10974
+tags: [brute_force]
+---
+
+## 문제
+
+N이 주어지면 1부터 N까지의 수로 이루어진 순열을 사전순으로 출력하는 문제이다.
+
+문제 링크 : <https://www.acmicpc.net/problem/10974>   
+
+## 풀이
+문제의 입력이 8로 크지가 않으므로 모든 경우를 나열해도 된다.
+
+나는 함수를 다음과 같이 작성했다.
+
+~~~java
+static void permutation(int toPick) throws Exception
+{
+	if(toPick ==0)
+	{
+		Iterator<Integer> it =stack.iterator();
+		while(it.hasNext())
+			bw.write(it.next() +" ");
+		bw.write("\n");
+		return;
+	}
+	for(int next =1; next <=N; next++)
+	{
+		if(!picked[next])
+		{
+			picked[next] =true;
+			stack.add(next);
+			permutation(toPick -1);
+			picked[next] =false;
+			stack.pop();
+		}
+	}
+}
+~~~
+
+위 코드의 파라미터는 아직 N개의 수 중 더 뽑아야 하는 숫자의 갯수를 의미한다.   
+뽑아야 하는 수가 0이면 모든 수를 출력한다.   
+더 뽑아야 하는 수가 있다면, 아직 뽑지않은 수 중에 하나를 뽑는다.   
+다음에 뽑아야 하는 수를 1부터 N까지 한것은 사전순으로 뽑아야 하기 때문이다.   
+
+~~~java
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.util.Iterator;
+import java.util.Stack;
+import java.util.StringTokenizer;
+
+public class Main
+{
+	static int N;
+	static boolean[] picked;
+	static Stack<Integer> stack =new Stack<>();
+	static BufferedWriter bw =new BufferedWriter(new OutputStreamWriter(System.out));
+	
+	public static void main(String[] args) throws Exception
+	{
+		BufferedReader br =new BufferedReader(new InputStreamReader(System.in));
+		StringTokenizer st;
+	
+		N =Integer.parseInt(br.readLine());
+		picked =new boolean[N+1];
+		permutation(N);
+		bw.flush();
+	}
+	
+	static void permutation(int toPick) throws Exception
+	{
+		if(toPick ==0)
+		{
+			Iterator<Integer> it =stack.iterator();
+			while(it.hasNext())
+				bw.write(it.next() +" ");
+			bw.write("\n");
+			return;
+		}
+		for(int next =1; next <=N; next++)
+		{
+			if(!picked[next])
+			{
+				picked[next] =true;
+				stack.add(next);
+				permutation(toPick -1);
+				picked[next] =false;
+				stack.pop();
+			}
+		}
+	}
+}
+~~~
+
+전체 코드
+
