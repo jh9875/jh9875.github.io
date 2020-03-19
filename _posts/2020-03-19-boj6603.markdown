@@ -1,0 +1,101 @@
+---
+layout: post
+title:  "[Baejoon] 6603번: 로또"
+date:   2020-03-19
+categories: PROBLEM_SOLVING
+permalink: /archivers/boj6603
+tags: [brute_force]
+---
+
+## 문제
+
+각 테스트 케이스마다 문제의 크기 K가 주어지고, K개의 숫자그 그 후 입력된다.   
+K가 0이면 종료한다.
+
+문제 링크 : <https://www.acmicpc.net/problem/6603>   
+
+## 풀이
+이 문제도 모든 경우의 수를 탐색해보면 된다.
+고르는 함수는 다음과 같다.   
+
+~~~java
+static void pick(int index, int toPick) throws Exception
+{
+	if(toPick ==0)
+	{
+		for(int i =0; i <K; i++)
+			if(picked[i])
+				bw.write(inputData[i] +" ");
+		bw.write("\n");
+		return;
+	}
+	for(int next =index+1; next <K; next++)
+	{
+		picked[next] =true;
+		pick(next, toPick-1);
+		picked[next] =false;
+	}
+}
+~~~
+
+0부터 K개의 수가 나열되어 있다고 했을 때 각 자리에 있는 수를 뽑은경우와 안뽑고 다음으로
+넘어가는 경우를 고려해 주었다.   
+
+~~~java
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.util.Iterator;
+import java.util.Stack;
+import java.util.StringTokenizer;
+
+public class Main
+{
+	static int K;
+	static int[] inputData;
+	static boolean[] picked;
+	static BufferedWriter bw =new BufferedWriter(new OutputStreamWriter(System.out));
+	
+	public static void main(String[] args) throws Exception
+	{
+		BufferedReader br =new BufferedReader(new InputStreamReader(System.in));
+		StringTokenizer st;
+		
+		while(true)
+		{
+			st =new StringTokenizer(br.readLine());
+			K =Integer.parseInt(st.nextToken());
+			if(K ==0)
+				break;
+			inputData =new int[K];
+			picked =new boolean[K];
+			for(int i =0; i <K; i++)
+				inputData[i] =Integer.parseInt(st.nextToken());
+			pick(-1, 6);
+			bw.write("\n");
+		}
+		bw.flush();
+	}
+	static void pick(int index, int toPick) throws Exception
+	{
+		if(toPick ==0)
+		{
+			for(int i =0; i <K; i++)
+				if(picked[i])
+					bw.write(inputData[i] +" ");
+			bw.write("\n");
+			return;
+		}
+		for(int next =index+1; next <K; next++)
+		{
+			picked[next] =true;
+			pick(next, toPick-1);
+			picked[next] =false;
+		}
+	}
+}
+~~~
+
+전체 코드
+
