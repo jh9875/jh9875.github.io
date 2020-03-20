@@ -1,0 +1,206 @@
+---
+layout: post
+title:  "[Baejoon] 13023번: ABCDE"
+date:   2020-03-20
+categories: PROBLEM_SOLVING
+permalink: /archivers/boj13023
+tags: [bfs, dfs]
+---
+
+## 문제
+
+0번부터 N-1번까지 번호가 매겨진 N명의 사람이 있다.   
+문제는 다음과 같이 써있다.
+
+다음과 같은 친구 관계를 가진 사람 A, B, C, D, E가 존재하는지 구해보려고 한다.
+
+- A는 B와 친구다.
+- B는 C와 친구다.
+- C는 D와 친구다.
+- D는 E와 친구다.
+위와 같은 친구 관계가 존재하는지 안하는지 구하는 프로그램을 작성하시오.   
+
+문제 링크 : <https://www.acmicpc.net/problem/13023>   
+
+## 풀이
+처음 문제를 봤을 때 무슨말인지 햇갈렸는데, 쉽게 말하면 친구 5명이   
+A-B-C-D-E 이런식으로 연결되어 있으면 1을 출력하면 된다.   
+
+나는 relation이라는 연결 그래프가 있고, 길이가 5가 되면 1을 반환하면 되겠구나 생각했다.   
+따라서 나는 relation이라는 boolean 2차원 배열에 관계를 저장하고, dfs식으로 탐색해서 길이가 4가 되면
+1을 반환하도록 구현해봤다.   
+
+코드는 다음과 같이 만들었다.   
+
+~~~java
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.util.StringTokenizer;
+
+public class Main
+{
+	static int N;
+	static boolean[][] relation;
+	static boolean[] visited;
+	static boolean ok;
+	
+	public static void main(String[] args) throws Exception
+	{
+		BufferedReader br =new BufferedReader(new InputStreamReader(System.in));
+		BufferedWriter bw =new BufferedWriter(new OutputStreamWriter(System.out));
+		StringTokenizer st;
+		int M, a, b;
+		
+		st =new StringTokenizer(br.readLine());
+		N =Integer.parseInt(st.nextToken());
+		M =Integer.parseInt(st.nextToken());
+		relation =new boolean[N][N];
+		visited =new boolean[N];
+		for(int i =0; i <M; i++)
+		{
+			st =new StringTokenizer(br.readLine());
+			a =Integer.parseInt(st.nextToken());
+			b =Integer.parseInt(st.nextToken());
+			relation[a][b] =true;
+			relation[b][a] =true;
+		}
+		bw.write(solve() +"\n");
+		bw.flush();
+	}
+	static int solve()
+	{
+		for(int start =0; start <N; start++)
+		{
+			visited[start] =true;
+			search(start, 0);
+			if(ok)
+				return 1;
+			visited[start] =false;
+		}
+		return 0;
+	}
+	static void search(int index, int len)
+	{
+		if(len >=4)
+		{
+			ok =true;
+			return;
+		}
+		for(int next =0; next <N; next++)
+		{
+			if(relation[index][next] && !visited[next])
+			{
+				visited[next] =true;
+				search(next, len+1);
+				if(ok)
+					return;
+				visited[next] =false;
+			}
+		}
+	}
+}
+~~~
+
+결과는 시간초과였다.   
+어디가 잘못된건지 찾을려다 결국 못찾았다.   
+그래서 다른사람들은 어떤식으로 문제를 해결했는지 참고해 볼려고 풀이를 찾아봤다.   
+풀이를 2~3개 정도를 간단히 봤는데 대부분 비슷했다.   
+다만 연결 그래프를 c++의 vector를 이용해서 풀었다.   
+그래서 나는 java에서 비슷한 ArrayList를 이용해 관계를 표현해봤다.   
+
+~~~java
+static ArrayList<Integer>[] relation;
+...
+relation =new ArrayList[N];
+for(int i =0; i <N; i++)
+			relation[i] =new ArrayList<>();
+~~~
+
+이런식으로 초기화 해줬다.   
+결과는 통과이다. 생각해보면 위와같이 코드를 만들면 N이 크고, M이 작은 경우는 불필요하게 탐색하는
+부분이 많게된다.   
+
+이 방법을 모르고 있던건 아니지만, 단지 메모리를 아끼기 위해서 쓰는 방법으로 밖에 생각하지 않고
+있었다.   
+전체 코드는 아래와 같다.   
+
+~~~java
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.util.ArrayList;
+import java.util.StringTokenizer;
+
+public class Main
+{
+	static int N;
+	static ArrayList<Integer>[] relation;
+	static boolean[] visited;
+	static boolean ok;
+	
+	public static void main(String[] args) throws Exception
+	{
+		BufferedReader br =new BufferedReader(new InputStreamReader(System.in));
+		BufferedWriter bw =new BufferedWriter(new OutputStreamWriter(System.out));
+		StringTokenizer st;
+		int M, a, b;
+		
+		st =new StringTokenizer(br.readLine());
+		N =Integer.parseInt(st.nextToken());
+		M =Integer.parseInt(st.nextToken());
+		relation =new ArrayList[N];
+		visited =new boolean[N];
+		for(int i =0; i <N; i++)
+			relation[i] =new ArrayList<>();
+		for(int i =0; i <M; i++)
+		{
+			st =new StringTokenizer(br.readLine());
+			a =Integer.parseInt(st.nextToken());
+			b =Integer.parseInt(st.nextToken());
+			relation[a].add(b);
+			relation[b].add(a);
+		}
+		bw.write(solve() +"\n");
+		bw.flush();
+	}
+	static int solve()
+	{
+		for(int start =0; start <N; start++)
+		{
+			visited[start] =true;
+			search(start, 0);
+			if(ok)
+				return 1;
+			visited[start] =false;
+		}
+		return 0;
+	}
+	static void search(int index, int len)
+	{
+		if(len >=4)
+		{
+			ok =true;
+			return;
+		}
+		int size =relation[index].size();
+		for(int i =0; i <size; i++)
+		{
+			int next =relation[index].get(i);
+			if(!visited[next])
+			{
+				visited[next] =true;
+				search(next, len+1);
+				if(ok)
+					return;
+				visited[next] =false;
+			}
+		}
+	}
+}
+~~~
+
+전체 코드
+
