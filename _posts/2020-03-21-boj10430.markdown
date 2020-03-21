@@ -1,0 +1,57 @@
+---
+layout: post
+title:  "[Baejoon] 10430번: 나머지"
+date:   2020-03-21
+categories: PROBLEM_SOLVING
+permalink: /archivers/boj10430
+tags: [math]
+---
+
+## 문제
+
+입력으로 A, B, C가 주어질 때,   
+- (A+B)%C
+- ((A%C) + (B%C))%C
+- (A×B)%C
+- ((A%C) × (B%C))%C
+
+를 구하고 순서대로 출력하는 문제이다.   
+
+문제 링크 : <https://www.acmicpc.net/problem/10430>   
+
+## 풀이
+
+문제가 너무 단순해서 풀이는 전체코드로 대신한다.   
+
+~~~java
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.util.StringTokenizer;
+
+public class Main
+{
+	public static void main(String[] args) throws Exception
+	{
+		BufferedReader br =new BufferedReader(new InputStreamReader(System.in));
+		BufferedWriter bw =new BufferedWriter(new OutputStreamWriter(System.out));
+		StringTokenizer st;
+		int A, B, C;
+		
+		st =new StringTokenizer(br.readLine());
+		A =Integer.parseInt(st.nextToken());
+		B =Integer.parseInt(st.nextToken());
+		C =Integer.parseInt(st.nextToken());
+		
+		bw.write(((A+B)%C) +"\n");
+		bw.write(((A%C)+(B%C))%C +"\n");
+		bw.write(((A*B)%C) +"\n");
+		bw.write(((A%C)*(B%C))%C +"\n");
+		bw.flush();
+	}
+}
+~~~
+
+전체 코드   
+
