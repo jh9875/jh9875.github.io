@@ -1,0 +1,131 @@
+---
+layout: post
+title:  "[Baejoon] 10971번: 외판원 순회2"
+date:   2020-03-23
+categories: PROBLEM_SOLVING
+permalink: /archivers/boj10971
+tags: [brute_force]
+---
+
+## 문제
+
+입력으로 도시의 수 N, 그리고 노드수가 N인 그래프가 주어진다.   
+도시 전체를 한번씩만 거치고 돌아올 때 최소비용을 출력하라.   
+
+문제 링크 : <https://www.acmicpc.net/problem/10971>   
+
+## 풀이
+
+문제를 해결하는 알고리즘은 한 도시를 시작으로 연결되어있는 모든 경로를 탐색해보면 된다.   
+그 중 가장 비용이 적게 드는 거리를 출력하면 된다.   
+문제 자체는 어렵지 않으나 실수하기 쉬운 부분들이 몇가지 있다.   
+
+처음 시작도시를 정하고 연결되어있는 도시들을 한번씩만 거쳐 원래 도시로 돌아와야한다.   
+한번씩만 거치는 것을 구현하기 위해 boolean배열 을 사용했다.   
+
+코드의 중요부분은 다음과 같다.   
+
+~~~java
+static int travel(int prev, int rest)
+{
+	if(rest ==0)
+	{
+		if(W[prev][0] !=0)
+			return W[prev][0];
+		else
+			return MAX;
+	}
+	int ret =MAX;
+	for(int next =0; next <N; next++)
+	{
+		if(!visited[next] && W[prev][next] !=0)
+		{
+			visited[next] =true;
+			ret =Math.min(ret, travel(next, rest-1) +W[prev][next]);
+			visited[next] =false;
+		}
+	}
+	return ret;
+}
+~~~
+
+prev는 이전도시라기 보단 현재 있는 도시를 뜻한다. 다음도시로 가는 경로를 확인하기 위해
+파라미터에 넣어주었다.   
+rest는 아직 더 탐험해야 하는 도시의 수이다.   
+
+일단 for문을 먼저 보자.   
+0부터 N까지 다음도시를 정하는데 아직 방문하지 않은 도시를 탐색하는 코드이다.   
+방문하지 않았다면 방문하고 재귀적으로 함수를 호출한다.   
+
+기저사례를 보면 rest가 0인경우, 즉 모든 도시를 거친경우인데   
+이때 W[prev][0] !=0이라고 한 이유는 탐색한 경로의 마지막 도시가 처음도시와
+연결되어 있지 않을 수도 있기 때문이다.   
+나는 여기서 실수를 해서 많이 틀렸다.   
+연결되어 있지 않은경우 큰 수를 리턴해 무효로 만들었다.   
+그리고 마지막 도시에서 0으로 가는 이유는 처음도시를 0번 도시로 잡았기 때문이다.   
+tsp문제는 모든 도시를 순회하는 경로를 찾는 것이기 때문에 어떤 도시든 분명히 들린다.   
+따라서 어떤 도시든지 시작위치가 될 수 있다.   
+나는 0번 도시를 시작위치로 잡았다.   
+전체 코드는 아래와 같다.   
+
+~~~java
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.util.StringTokenizer;
+
+public class Main
+{
+	static final int MAX =987654321;
+	static int N;
+	static int[][] W;
+	static boolean[] visited;
+	
+	public static void main(String[] args) throws Exception
+	{
+		BufferedReader br =new BufferedReader(new InputStreamReader(System.in));
+		BufferedWriter bw =new BufferedWriter(new OutputStreamWriter(System.out));
+		StringTokenizer st;
+		int ans;
+		
+		N =Integer.parseInt(br.readLine());
+		W =new int[N][N];
+		visited =new boolean[N];
+		for(int i =0; i <N; i++)
+		{
+			st =new StringTokenizer(br.readLine());
+			for(int j =0; j <N; j++)
+				W[i][j] =Integer.parseInt(st.nextToken());
+		}
+		visited[0] =true;
+		ans =travel(0, N-1);
+		bw.write(ans +"\n");
+		bw.flush();
+	}
+	static int travel(int prev, int rest)
+	{
+		if(rest ==0)
+		{
+			if(W[prev][0] !=0)
+				return W[prev][0];
+			else
+				return MAX;
+		}
+		int ret =MAX;
+		for(int next =0; next <N; next++)
+		{
+			if(!visited[next] && W[prev][next] !=0)
+			{
+				visited[next] =true;
+				ret =Math.min(ret, travel(next, rest-1) +W[prev][next]);
+				visited[next] =false;
+			}
+		}
+		return ret;
+	}
+}
+~~~
+
+전체 코드
+
