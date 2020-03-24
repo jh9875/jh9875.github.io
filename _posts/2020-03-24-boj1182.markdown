@@ -1,0 +1,80 @@
+---
+layout: post
+title:  "[Baejoon] 1182번: 부분수열의 합"
+date:   2020-03-24
+categories: PROBLEM_SOLVING
+permalink: /archivers/boj1182
+tags: [brute_force]
+---
+
+## 문제
+
+N개의 정수로 이루어진 수열이 있을 때, 크기가 양수인 부분수열 중에서 그 수열의 원소를 더한값이 S가
+되는 경우의 수를 구하여하.   
+
+문제 링크 : <https://www.acmicpc.net/problem/1182>   
+
+## 풀이
+
+부분 수열을 만들 때, 각 수열의 원소마다 포함하는경우/안하는경우 를 고려하고 합을 계산해가면서 해결하면 된다.   
+코드의 중요부분은 다음과 같다.   
+
+~~~java
+static void solve(int index, int sum)
+{
+	for(int next =index+1; next <N; next++)
+	{
+		if(sum+arr[next] ==S)
+			ans++;
+		solve(next, sum+arr[next]);
+	}
+}
+~~~
+
+solve의 반복문 안에서 sum+arr[next] ==S가 되는지 확인하는 이유는
+크기가 양수인 부분수열을 만들기 위해서이다.   
+만약 S가 0이라면 한개도 포함하지 않는 경우를 셀수도 있기 때문이다.   
+
+~~~java
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.util.StringTokenizer;
+
+public class Main
+{
+	static int N, S, ans;
+	static int[] arr;
+	
+	public static void main(String[] args) throws Exception
+	{
+		BufferedReader br =new BufferedReader(new InputStreamReader(System.in));
+		BufferedWriter bw =new BufferedWriter(new OutputStreamWriter(System.out));
+		StringTokenizer st;
+		
+		st =new StringTokenizer(br.readLine());
+		N =Integer.parseInt(st.nextToken());
+		S =Integer.parseInt(st.nextToken());
+		arr =new int[N];
+		st =new StringTokenizer(br.readLine());
+		for(int i =0; i <N; i++)
+			arr[i] =Integer.parseInt(st.nextToken());
+		solve(-1, 0);
+		bw.write(ans +"\n");
+		bw.flush();
+	}
+	static void solve(int index, int sum)
+	{
+		for(int next =index+1; next <N; next++)
+		{
+			if(sum+arr[next] ==S)
+				ans++;
+			solve(next, sum+arr[next]);
+		}
+	}
+}
+~~~
+
+전체 코드
+
