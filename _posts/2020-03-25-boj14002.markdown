@@ -1,0 +1,226 @@
+---
+layout: post
+title:  "[Baejoon] 14002번: 가장 긴 증가하는 부분 수열4"
+date:   2020-03-25
+categories: PROBLEM_SOLVING
+permalink: /archivers/boj14002
+tags: [dp]
+---
+
+## 문제
+
+lis문제이다. 수열의 크기 N과 N개의 수열이 주어질 때
+가장 긴 증가하는 부분 수열의 길이와 가장 긴 증가하는 부분수열을
+출력하는 문제이다.   
+
+문제 링크 : <https://www.acmicpc.net/problem/14002>   
+
+## 풀이
+
+가장 긴 증가하는 부분의 길이는 어렵지 않게 풀 수 있었다.   
+가장 긴 증가하는 부분을 구할려니까 막상 구현이 어렵게 느껴졌다.   
+
+일단 가장 긴 증가하는 부분의 길이를 구하는 문제는 완전탐색과 메모이제이션으로 해결이 가능하다.   
+함수의 중요 부분은 다음과 같다.   
+
+~~~java
+static int lis(int index)
+{
+	if(cache[index+1] !=-1)
+		return cache[index+1];
+	cache[index+1] =0;
+	int bestLen =1;
+	int bestNext =-1;
+	for(int next =index+1; next <N; next++)
+	{
+		if(index ==-1 ||(arr[index] <arr[next]))
+		{
+			int cand =lis(next) +1;
+			if(bestLen <cand)
+			{
+				bestLen =cand;
+				bestNext =next;
+			}
+		}
+	}
+	choices[index+1] =bestNext;
+	return cache[index+1] =bestLen;
+}
+~~~
+
+위 코드에서 일단 cache라는 배열부터 알아보자.   
+cache는 가장 긴 증가하는 부분의 길이를 기록해 두는 배열이다.   
+중복계산을 피하기 위해서 배열의 각 인덱스마다 인덱스를 기준으로 긴 배열이 어느정도인지
+기록한다.   
+
+기저사례에서 cahce[index+1]을 한 까닭은 함수 호출부분을 깔끔하게 하기 위해서이다.   
+lis의 시작위치가 무조건 처음은 아니기 때문에 모든 위치를 시작위치로 고려를 해봐야 한다.   
+그렇다면 함수의 호출부분은 다음과 같이 작성해야한다.   
+
+~~~java
+for(int start =0; start <N; start++)
+	ans =Math.max(max, lis(start));
+~~~
+
+만약 lis(-1)부터 호출한다면 그 다음에 올 시작위치를 위와같이 작성하지 않아도 된다는 장점이 있다.   
+그럼 함수 호출할 땐 ans =lis(-1) -1을 해줘야 한다.   
+함수에 -1을 해주는 이유는 -1에서 시작위치의 길이 1이 들어갔기 때문이다.   
+
+아무튼 -1부터 호출하게 되면 배열의 인덱스 문제가 생긴다.   
+배열은 0~N까지 인덱스가 있고 -1은 없기 때문이다.   
+그래서 함수의 기저사례는 cache[index+1]을 써준다.   
+그렇다면 마지막 탐험할 때 범위를 벗어날 수 있으므로 cache의 크기도
+cache[N+1]로 해주면 된다.   
+
+
+가장 긴 증가하는 부분을 구하기 위해서도 따로 기록해 둘 필요가 있다.   
+그것을 저장하기 위해 choices라는 int형 배열을 만들었다.   
+
+위 코드에서 가장 긴 증가하는 부분의 길이를 구하기 위해서 bestLen이라는 변수를 만들어서 쓰고있다.   
+
+~~~java
+int cand =lis(next) +1;
+if(bestLen <cand)
+{
+	bestLen =cand;
+	bestNext =next;
+}
+~~~
+
+반복문 안에 위와같이 코드가 있다.   
+이는 현재 인덱스에서 다음에 올 가장 긴 증가하는 부분수열을 최신화 하기 위해
+있는 것이다.   
+마찬가지로 다음에 올 인덱스도 bestNext라는 것을 이용해 경로를 기록해 둔다.   
+
+그리고 마지막엔 다음과 같이 배열에 기록한다.   
+
+~~~java
+choices[index+1] =bestNext;
+return cache[index+1] =bestLen;
+~~~
+
+choices엔 가장 긴 부분수열의 다음 인덱스를 저장한다.   
+cache는 가장 긴 부분수열의 길이를 저정한다.   
+
+이 과정을 거치고도 아직 할 것이 더 있다.
+
+위에서 choices에 기록해 둔 것은 다음에 올 인덱스를 기록해 둔 것이다.   
+그렇기 때문에 데이터를 다시 처리해줄 필요가 있다.   
+
+경로의 값을 기록하기 위해 다음과 같은 함수가 있다.   
+
+~~~java
+static void reconstruct(int index, ArrayList<Integer> list)
+{
+	if(index !=-1)
+		list.add(arr[index]);
+	int next =choices[index+1];
+	if(next !=-1)
+		reconstruct(next, list);
+}
+~~~
+
+위에서 index는 다음에 올 가장 긴 증가하는 부분수열의 인덱스이다.   
+list는 그 경로를 기록해두는 연결리스트이다.   
+
+이것도 위에서 lis를 -1부터 호출한 것과 마찬가지 이유로 -1부터 호출한다.   
+index가 -1인 경우를 제외하고, list에 담으면 된다.   
+그리고 다음에 올 인덱스를 choices[index+1]로 구한다.   
+
+예를들면 예제에서 수열이 10, 20, 10, 30, 20, 50이다.
+그럼 가장 긴 증가하는 부분은 10, 20, 30, 50이고,
+각 인덱스는 0, 1, 3, 5이다.   
+
+코드의 choices를 출력해보면 다음과 같이 나온다.   
+choices:  0, 1, 3, 3, 5, 5, -1
+
+choices의 각 숫자가 의미하는 것은
+다음에 갈 인덱스를 의미한다.   
+그리고 함수를 -1부터 호출하고 배열의 크기가 N+1이기 때문에 다음과 같이봐도 된다.   
+choices:  0, 1, 3, 3, 5, 5, -1
+index:   -1, 0, 1, 2, 3, 4,  5   (수열의 인덱스)
+
+위를 해석해보면 index가 -1일때(시작위치를 정할 때) 0으로 가면 가장 긴 증가하는 부분수열이고,   
+0에서는 다음으로 1로 가면 lis이다.   
+1에서는 3으로 가면 되고, 3에서는 5로가면 된다.   
+5에서는 -1이기 때문에 그냥 함수를 반환한다.   
+
+위 choices에서 중복되는 숫자가 몇개 보인다.   
+예를들어 세번째와 네번째 모두 3이 기록되어있는데
+이는 수열의 두번째 수 20과 세번째 수 10에서 모두 30으로 가면 가장 긴
+증가하는 부분수열이기 때문이다.   
+
+
+~~~java
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.StringTokenizer;
+
+public class Main
+{
+	static int N;
+	static int[] arr;
+	static int[] cache;
+	static int[] choices;
+	
+	public static void main(String[] args) throws Exception
+	{
+		BufferedReader br =new BufferedReader(new InputStreamReader(System.in));
+		BufferedWriter bw =new BufferedWriter(new OutputStreamWriter(System.out));
+		StringTokenizer st;
+		ArrayList<Integer> list =new ArrayList<>();
+		
+		N =Integer.parseInt(br.readLine());
+		arr =new int[N];
+		cache =new int[N+1];
+		choices =new int[N+1];
+		Arrays.fill(cache, -1);
+		st =new StringTokenizer(br.readLine());
+		for(int i =0; i <N; i++)
+			arr[i] =Integer.parseInt(st.nextToken());
+		bw.write(lis(-1) -1 +"\n");
+		reconstruct(-1, list);
+		int len =list.size();
+		for(int i =0; i <len; i++)
+			bw.write(list.get(i) +" ");
+		bw.flush();
+	}
+	static int lis(int index)
+	{
+		if(cache[index+1] !=-1)
+			return cache[index+1];
+		cache[index+1] =0;
+		int bestLen =1;
+		int bestNext =-1;
+		for(int next =index+1; next <N; next++)
+		{
+			if(index ==-1 ||(arr[index] <arr[next]))
+			{
+				int cand =lis(next) +1;
+				if(bestLen <cand)
+				{
+					bestLen =cand;
+					bestNext =next;
+				}
+			}
+		}
+		choices[index+1] =bestNext;
+		return cache[index+1] =bestLen;
+	}
+	static void reconstruct(int index, ArrayList<Integer> list)
+	{
+		if(index !=-1)
+			list.add(arr[index]);
+		int next =choices[index+1];
+		if(next !=-1)
+			reconstruct(next, list);
+	}
+}
+~~~
+
+전체 코드
+

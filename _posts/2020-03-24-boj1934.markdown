@@ -1,0 +1,94 @@
+---
+layout: post
+title:  "[Baejoon] 1934번: 최소공배수"
+date:   2020-03-24
+categories: PROBLEM_SOLVING
+permalink: /archivers/boj1934
+tags: [math]
+---
+
+## 문제
+
+문제의 테스트케이스 T가 주어지고, 그 밑줄부터 T+1줄 까지
+두 자연수 A, B가 주어졌을 때, 두 수의 최소공배수를 구하는 프로그램을 작성하시오.   
+
+문제 링크 : <https://www.acmicpc.net/problem/1934>   
+
+## 풀이
+
+비슷한 문제를 전에 풀어본 적이 있었다.   
+최대공약수와 최소공배수를 구하는 문제였다.   
+최대공약수를 구할 땐 유클리드 알고리즘을 이용했는데 원리는 다음과 같다.   
+
+> 두 수 p, q(p>q)의 공약수의 집합은 p-q와 q의 공약수 집합과 같다는 점을 이용한다.
+
+여기서 약간 더 응용을 하면 p-q를 이용하는게 아니라 p%q를 이용하는 것이다.   
+두 수의 차이가 커지면 연산을 여러번 하므로 나누기 연산을 하면 계산 수를 많이
+줄일 수 있다.   
+코드는 아래와 같다.   
+
+~~~java
+static int gcd(int a, int b)
+{
+	if(b ==0) return a;
+	return gcd(b, a%b);
+}
+~~~
+
+최소공배수를 구하기 위해선 최대공약수를 이용한다.   
+최소공배수와 최대공약수 사이엔 다음과 같은 식이 있다.   
+
+> 최소공배수 = A X B / 최대공약수
+
+이것을 이용하면 최소공배수의 함수는 다음과 같이 구현할 수 있다.   
+
+~~~java
+static int lcm(int a, int b)
+{
+	return a*b/gcd(a, b);
+}
+~~~
+
+이제 이것을 가지고 각 테스트케이스마다 함수를 호출하고 출력하면 된다.   
+
+~~~java
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.util.StringTokenizer;
+
+public class Main
+{
+	
+	public static void main(String[] args) throws Exception
+	{
+		BufferedReader br =new BufferedReader(new InputStreamReader(System.in));
+		BufferedWriter bw =new BufferedWriter(new OutputStreamWriter(System.out));
+		StringTokenizer st;
+		int T, A, B;
+		
+		T =Integer.parseInt(br.readLine());
+		while(T-- >0)
+		{
+			st =new StringTokenizer(br.readLine());
+			A =Integer.parseInt(st.nextToken());
+			B =Integer.parseInt(st.nextToken());
+			bw.write(lcm(A, B) +"\n");
+		}
+		bw.flush();
+	}
+	static int gcd(int a, int b)
+	{
+		if(b ==0) return a;
+		return gcd(b, a%b);
+	}
+	static int lcm(int a, int b)
+	{
+		return a*b/gcd(a, b);
+	}
+}
+~~~
+
+전체 코드
+

@@ -1,0 +1,91 @@
+---
+layout: post
+title:  "[Baejoon] 9613번: GCD합"
+date:   2020-03-24
+categories: PROBLEM_SOLVING
+permalink: /archivers/boj9613
+tags: [math]
+---
+
+## 문제
+
+문제의 테스트케이스가 첫째줄에 입력으로 주어지고, 각 테스트케이스는 한줄로 이루어져있다.   
+각 테스트케이스의 첫번째 수는 수의 개수이고, 그 다음에 n개의 수가 주어진다.   
+그 수들 모든쌍의 최대공약수의 합을 구하는 문제이다.  
+
+문제 링크 : <https://www.acmicpc.net/problem/9613>   
+
+## 풀이
+
+최대공약수 문제는 여러번 풀어봤다.   
+밑에 링크에 최대공약수 구하는 방법이 있다.   
+
+<https://jh9875.github.io/archivers/boj2609>
+
+나머지는 테스트케이스마다 모든 쌍을 만들어 최대공약수를 구하면 된다.   
+쌍은 2개이기 때문에 for문 2개로 가능하다.   
+코드 중요부분은 다음과 같다.   
+
+~~~java
+static long solve(int N, int[] arr)
+{
+	long sum =0;
+	for(int i =0; i <N; i++)
+		for(int j =i+1; j <N; j++)
+			sum +=gcd(arr[i], arr[j]);
+	return sum;
+}
+~~~
+
+여기서 주의할 것은 반환값이 long이라는 것이다.   
+나도 처음에 범위를 생각못하고 int로 해서 틀렸다.   
+입력의 크기가 클 때는 데이터 타입형을 바꿔보는 것도 좋은생각인것 같다.   
+
+~~~java
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.util.StringTokenizer;
+
+public class Main
+{
+	
+	public static void main(String[] args) throws Exception
+	{
+		BufferedReader br =new BufferedReader(new InputStreamReader(System.in));
+		BufferedWriter bw =new BufferedWriter(new OutputStreamWriter(System.out));
+		StringTokenizer st;
+		int T, N;
+		int[] arr;
+		
+		T =Integer.parseInt(br.readLine());
+		while(T-- >0)
+		{
+			st =new StringTokenizer(br.readLine());
+			N =Integer.parseInt(st.nextToken());
+			arr =new int[N];
+			for(int i =0; i <N; i++)
+				arr[i] =Integer.parseInt(st.nextToken());
+			bw.write(solve(N, arr) +"\n");
+		}
+		bw.flush();
+	}
+	static long solve(int N, int[] arr)
+	{
+		long sum =0;
+		for(int i =0; i <N; i++)
+			for(int j =i+1; j <N; j++)
+				sum +=gcd(arr[i], arr[j]);
+		return sum;
+	}
+	static int gcd(int a, int b)
+	{
+		if(b ==0) return a;
+		return gcd(b, a%b);
+	}
+}
+~~~
+
+전체 코드
+
