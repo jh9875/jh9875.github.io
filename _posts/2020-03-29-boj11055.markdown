@@ -1,0 +1,98 @@
+---
+layout: post
+title:  "[Baejoon] 11055번: 가장 큰 증가 부분 수열"
+date:   2020-03-29
+categories: PROBLEM_SOLVING
+permalink: /archivers/boj11055
+tags: [dp]
+---
+
+## 문제
+
+문제의 수열의 크기 N과 N개의 수열이 주어질 때   
+증가하는 부분수열의 합이 가장 큰 경우의 합을 구하는 문제이다.   
+
+문제 링크 : <https://www.acmicpc.net/problem/11055>   
+
+## 풀이
+
+이 문제를 완전탐색과 메모이제이션을 이용해서 풀었다.   
+
+문제를 해결하는 함수는 다음과 같이 작성했다.   
+
+~~~java
+static int lis(int index)
+{
+	if(cache[index+1] !=-1)
+		return cache[index+1];
+	int ret =0;
+		
+	for(int next =index+1; next <N; next++)
+		if(index ==-1 || arr[index] <arr[next])
+			ret =Math.max(ret, lis(next) +arr[next]);
+	return cache[index+1] =ret;
+}
+~~~
+
+함수는 현재 index를 기준으로 다음에 있는 수열에서 증가하는 수열의 가장 큰 값을 반환한다.     
+
+여기서 cache는 이미 계산된 값이다. 
+  
+중복계산을 피함으로써 계산의 속도를 올리기 위해 cache를 이용한다.   
+
+요기서 cache[index+1] !=-1인 이유는 처음 cache를 -1로 초기화 해두었기 때문이다.   
+보통 문제의 계산된 값이 음수가 나올 수 없다는 것을 이용했다.   
+그렇기에 cache의 값이 -1이라는 것은 아직 계산되지 않았다는 것이고, -1이 아니라는 것은 이미
+계산된 값이니 값을 계산된 값을 바로 반환할 수 있다.   
+
+for문으로 현재 index의 다음에 올 수 있는 조건에 맞는 next들을 찾아본다.   
+현재 index 다음에 오는 수열들 중 수열의 합이 가장 큰 값을 cache에 저장하면서 반환한다.   
+
+~~~java
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.util.Arrays;
+import java.util.StringTokenizer;
+
+public class Main
+{
+	static int N;
+	static int[] arr;
+	static int[] cache;
+	
+	public static void main(String[] args) throws Exception
+	{
+		BufferedReader br =new BufferedReader(new InputStreamReader(System.in));
+		BufferedWriter bw =new BufferedWriter(new OutputStreamWriter(System.out));
+		StringTokenizer st;
+		int ans =0;
+		
+		N =Integer.parseInt(br.readLine());
+		arr =new int[N];
+		cache =new int[N+1];
+		Arrays.fill(cache, -1);
+		st =new StringTokenizer(br.readLine());
+		for(int i =0; i <N; i++)
+			arr[i] =Integer.parseInt(st.nextToken());
+		ans =lis(-1);
+		bw.write(ans +"\n");
+		bw.flush();
+	}
+	static int lis(int index)
+	{
+		if(cache[index+1] !=-1)
+			return cache[index+1];
+		int ret =0;
+		
+		for(int next =index+1; next <N; next++)
+			if(index ==-1 || arr[index] <arr[next])
+				ret =Math.max(ret, lis(next) +arr[next]);
+		return cache[index+1] =ret;
+	}
+}
+~~~
+
+전체 코드
+
