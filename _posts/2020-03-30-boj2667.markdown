@@ -1,0 +1,181 @@
+---
+layout: post
+title:  "[Baejoon] 2667번: 단지번호붙이기"
+date:   2020-03-30
+categories: PROBLEM_SOLVING
+permalink: /archivers/boj2667
+tags: [dfs, bfs]
+---
+
+## 문제
+
+문제의 입력으로 정수 N(5≤N≤25)과 길이가 N인 이차원 int형 배열이 주어진다.   
+이 문제에서 이차원 int형 배열은 주택단지를 나타낸다.   
+0이면 비어있는 곳이고, 1이면 집이 있는것이다.   
+문제에서 구하고자 하는 것은 집들이 모여있는 단지가 몇개인지, 각 단지의 크기가 각각 어느정도인지 
+물어보고 있다.   
+출력은 단지의 갯수, 단지내 집의 수를 오름차순으로 출력하는 것이다.   
+
+문제 링크 : <https://www.acmicpc.net/problem/2667>   
+
+## 풀이
+
+이 문제는 dfs나 bfs로 해결할 수 있다.   
+나는 dfs를 이용해볼 것이다.   
+
+일단 단지의 수를 구하기 위해 cnt라는 변수를 만들어 주고, 각 단지내 집의 수를 구하기 위해서
+ArrayList를 선언해 주었다.   
+
+지도에서 아직 방문하지 않은 지역을 방문할 때마다 cnt를 증가시켜 줘서 단지수를 구했다.   
+방문한 지역의 수는 ArrayList에 넣어줘서 오름차순 정렬을 시킨다음에 출력했다.   
+
+위 내용을 코드로 다음과 같이 구현해봤다.   
+
+~~~java
+static Complex solve()
+{
+	ArrayList<Integer> list =new ArrayList<>();
+	int cnt =0;
+	boolean[][] visited =new boolean[N][N];
+	for(int r =0; r <N; r++)
+	{
+		for(int c =0; c <N; c++)
+		{
+			if(map[r][c] ==1 && !visited[r][c])
+			{
+				cnt++;
+				list.add(dfs(r, c, visited));
+			}
+		}
+	}
+	Collections.sort(list);
+	return new Complex(cnt, list);
+}
+~~~
+
+위 함수에서 반환값이 Complex로 되어있는데 이것은 (단지의수, 단지내 집의수를 담은 리스트) 쌍의 구조체이다.   
+그리고 방문한 위치를 표시하기위해 boolean이차원 배열인 visited를 만들어 줬다.   
+
+이중 for문으로 지도의 전체를 확인하면서 집이 있으면서, 방문하지 않은 곳을 탐색했다.   
+방문하지 않은 지역을 찾을 때마다 cnt값과 list값을 변경시켜 줬다.   
+
+
+dfs함수는 다음과 같이 구현했다.   
+
+~~~java
+static int dfs(int r, int c, boolean[][] visited)
+{
+	int ret =1;
+	visited[r][c] =true;
+	
+	for(int d =0; d <4; d++)
+	{
+		int nextR =r +dirR[d];
+		int nextC =c +dirC[d];
+			
+		if(!inRange(nextR, nextC)) continue;
+		if(map[nextR][nextC] ==0) continue;
+		if(visited[nextR][nextC]) continue;
+		ret +=dfs(nextR, nextC, visited);
+	}
+	return ret;
+}
+~~~
+
+현재 지도의 위치를 (r, c)라고 하고, visited[r][c] =true로 함으로써 방문위치를 표시해줬다.   
+
+for문으로 현재위치에서 4가지 방향(상,하,좌,우)를 탐색해서 이동가능한 집이면 dfs를 이용해 재귀적으로 탐색했다.   
+
+반환값이 1인 이유는 현재 집의 갯수를 의미한다.   
+반환값인 ret를 ret +=dfs 해줌으로써 인접해 있는 모든 집들의 수를 구할 수 있다.   
+
+
+~~~java
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.util.ArrayList;
+import java.util.Collections;
+
+public class Main
+{
+	static class Complex
+	{
+		int cnt;
+		ArrayList<Integer> list;
+		Complex(int cnt, ArrayList<Integer> list)
+		{
+			this.cnt =cnt;
+			this.list =list;
+		}
+	}
+	static int N;
+	static int[][] map;
+	static int[] dirR = {1, 0, -1, 0};
+	static int[] dirC = {0, 1, 0, -1};
+	
+	public static void main(String[] args) throws Exception
+	{
+		BufferedReader br =new BufferedReader(new InputStreamReader(System.in));
+		BufferedWriter bw =new BufferedWriter(new OutputStreamWriter(System.out));
+		Complex ans;
+	
+		N =Integer.parseInt(br.readLine());
+		map =new int[N][N];
+		for(int i =0; i <N; i++)
+		{
+			String input =br.readLine();
+			for(int j =0; j <N; j++)
+				map[i][j] =input.charAt(j) -'0';
+		}
+		ans =solve();
+		bw.write(ans.cnt +"\n");
+		for(int n : ans.list)
+			bw.write(n +"\n");
+		bw.flush();
+	}
+	static Complex solve()
+	{
+		ArrayList<Integer> list =new ArrayList<>();
+		int cnt =0;
+		boolean[][] visited =new boolean[N][N];
+		for(int r =0; r <N; r++)
+		{
+			for(int c =0; c <N; c++)
+			{
+				if(map[r][c] ==1 && !visited[r][c])
+				{
+					cnt++;
+					list.add(dfs(r, c, visited));
+				}
+			}
+		}
+		Collections.sort(list);
+		return new Complex(cnt, list);
+	}
+	static int dfs(int r, int c, boolean[][] visited)
+	{
+		int ret =1;
+		visited[r][c] =true;
+		
+		for(int d =0; d <4; d++)
+		{
+			int nextR =r +dirR[d];
+			int nextC =c +dirC[d];
+			
+			if(!inRange(nextR, nextC)) continue;
+			if(map[nextR][nextC] ==0) continue;
+			if(visited[nextR][nextC]) continue;
+			ret +=dfs(nextR, nextC, visited);
+		}
+		return ret;
+	}
+	static boolean inRange(int r, int c)
+	{
+		if(r <0 || r >=N || c <0 || c >=N)
+			return false;
+		return true;
+	}
+}
+~~~
