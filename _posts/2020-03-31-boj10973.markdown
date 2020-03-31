@@ -1,0 +1,145 @@
+---
+layout: post
+title:  "[Baejoon] 10973번: 이전 순열"
+date:   2020-03-31
+categories: PROBLEM_SOLVING
+permalink: /archivers/boj10973
+tags: [brute_force]
+---
+
+## 문제
+
+10000이하의 자연수 N과 1부터 N까지의 수로 이루어진 순열이 주어질 때, 그 순열의 이전수열을
+구하는 문제이다.   
+
+문제 링크 : <https://www.acmicpc.net/problem/10973>   
+
+## 풀이
+
+저번에 풀었던 다음 순열 문제와 비슷한 문제다.   
+
+그래서 그런지 문제의 정답률도 높은 편이다.   
+
+이 문제도 저번과 비슷한 코드를 썼다.   
+
+~~~java
+static ArrayList<Integer> solve(int N, int[] arr)
+{
+	ArrayList<Integer> list =new ArrayList<>();
+	boolean find =false;
+		
+	for(int i =N-1; i >0; i--)
+	{
+		for(int j =N-1; j >i-1; j--)
+		{
+			if(arr[i-1] >arr[j])
+			{
+				int temp =arr[i-1];
+				arr[i-1] =arr[j];
+				arr[j] =temp;
+				find =true;
+				break;
+			}
+		}
+		if(find)
+		{
+			Arrays.sort(arr, i, N);
+			for(int j =0; j <i; j++)
+				list.add(arr[j]);
+			for(int j =N-1; j >=i; j--)
+				list.add(arr[j]);
+			break;
+		}
+	}
+	return list;
+}
+~~~
+
+저번이랑 다른게 있다면 10번째 줄과 24,25번째 줄이다.   
+
+나머지는 저번에 썼던 코드랑 같다.   
+
+이전 순열은 다음 순열과 반대되는 규칙이 있을거라 생각해보고 순열을 살펴보면서 풀었다.   
+
+예를들어 N=3일때 순열을 순차대로 늘어 놓으면 다음과 같다.   
+
+- 1 2 3
+- 1 3 2
+- 2 1 3
+- 2 3 1
+- 3 1 2
+- 3 2 1
+
+순열의 어떤 인덱스를 기준으로 arr[i-1] >arr[j]인 부분에서 i-1부분이 바뀐다.   
+
+그리고 idx부터 끝까지는 역순으로 정렬되어있다.   
+
+
+~~~java
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.StringTokenizer;
+
+public class Main
+{
+	static int N;
+	static int[] arr;
+	
+	public static void main(String[] args) throws Exception
+	{
+		BufferedReader br =new BufferedReader(new InputStreamReader(System.in));
+		BufferedWriter bw =new BufferedWriter(new OutputStreamWriter(System.out));
+		StringTokenizer st;
+		ArrayList<Integer> list;
+		
+		N =Integer.parseInt(br.readLine());
+		arr =new int[N];
+		st =new StringTokenizer(br.readLine());
+		for(int i =0; i <N; i++)
+			arr[i] =Integer.parseInt(st.nextToken());
+		list =solve(N, arr);
+		if(list.size() ==0)
+			bw.write(-1 +"\n");
+		else
+			for(int n : list)
+				bw.write(n +" ");
+		bw.flush();
+	}
+	
+	static ArrayList<Integer> solve(int N, int[] arr)
+	{
+		ArrayList<Integer> list =new ArrayList<>();
+		boolean find =false;
+		
+		for(int i =N-1; i >0; i--)
+		{
+			for(int j =N-1; j >i-1; j--)
+			{
+				if(arr[i-1] >arr[j])
+				{
+					int temp =arr[i-1];
+					arr[i-1] =arr[j];
+					arr[j] =temp;
+					find =true;
+					break;
+				}
+			}
+			if(find)
+			{
+				Arrays.sort(arr, i, N);
+				for(int j =0; j <i; j++)
+					list.add(arr[j]);
+				for(int j =N-1; j >=i; j--)
+					list.add(arr[j]);
+				break;
+			}
+		}
+		return list;
+	}
+}
+~~~
+
