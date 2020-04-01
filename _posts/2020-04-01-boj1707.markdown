@@ -1,0 +1,211 @@
+---
+layout: post
+title:  "[Baejoon] 1707번: 이분 그래프"
+date:   2020-04-01
+categories: PROBLEM_SOLVING
+permalink: /archivers/boj1707
+tags: [dfs, bfs]
+---
+
+## 문제
+
+문제에서 그래프가 주어질 때 이 그래프가 이분그래프인지 아닌지 판별하는 프로그램을 작성하는 문제이다.   
+
+이분그래프는 그래프의 집합을 둘로 나누었을 때, 각 집합에 속한 정점끼리는 인접하지 않는 조건을 만족할 때
+이분그래프가 된다.   
+
+문제의 입력으로 첫줄에 테스트 케이스의 수 K가 주어진다.   
+
+각 테스트 케이스 입력의 첫줄엔 정점의 개수 V와 간선의 개수 E가 주어지고, E개의 줄에 간선(두개의 정점)이 주어진다.   
+
+이분그래프라면 YES를 출력하고, 아니면 NO를 출력해야한다.   
+
+문제 링크 : <https://www.acmicpc.net/problem/1707>   
+
+## 풀이
+
+일단 그래프를 표현하기 위해 나는 ArrayList배열을 사용했다.   
+
+정점의 개수가 최대 2만개까지 있을 수 있어서 메모리 낭비가 많을 것이라 생각이 들었다.   
+
+그래프의 입력은 다음과 같이 받아주면 된다.   
+
+~~~java
+static ArrayList<Integer>[] graph;
+
+...
+graph =new ArrayList[V+1];
+for(int i =1; i <=V; i++)
+	graph[i] =new ArrayList<>();
+for(int i =0; i <E; i++)
+{
+	st =new StringTokenizer(br.readLine());
+	a =Integer.parseInt(st.nextToken());
+	b =Integer.parseInt(st.nextToken());
+	graph[a].add(b);
+	graph[b].add(a);
+}
+~~~
+
+그래프를 입력 받았으니 인접한 정점과 인접하지 않은 정점을 찾아야 한다.   
+
+그래프의 인접함을 확인해 주기 위해서 각 정점에 색깔을 입힌다고 생각해봤다.   
+
+이것을 표현하기 위해서 boolean배열을 이용했다.   
+
+만약 color(1)이 true라면 1번 정점에 인접한 정점들은 color(i)가 false여야 한다.   
+
+이것을 계산하기 위해서 dfs를 이용했다.   
+
+dfs의 호출부는 보통 부분과 비슷하다.   
+
+호출부분은 다음과 같다.   
+
+~~~java
+boolean[] visited =new boolean[V+1];
+boolean[] color =new boolean[V+1];
+
+for(int start =1; start <=V; start++)
+	if(!visited[start])
+		dfs(start, visited, color);
+~~~
+
+여기서 start는 탐색을 시작할 정점의 번호이다.   
+
+visited는 중복방문을 방지하기 위해서 함수의 파라미터로 넣어줬고, color는 인접한 정점들을 다른
+색깔로 표현하기 위해 파라미터로 넣어줬다.   
+
+
+dfs의 함수코드는 다음과 같다.   
+
+~~~java
+static void dfs(int index, boolean[] visited, boolean[] color)
+{
+	int size =graph[index].size();
+	visited[index] =true;
+	for(int i =0; i <size; i++)
+	{
+		int next =graph[index].get(i);
+		if(!visited[next])
+		{
+			color[next] =!color[index];
+			dfs(next, visited, color);
+		}	
+	}
+}
+~~~
+
+위 코드에서 index가 의미하는 것은 현재 정점 번호이다.   
+
+현재 정점을 방문한 정점으로 표시하고, 현재 정점에서 인접한 정점들 중 방문하지 않은 정점들을
+모두 다른 색깔로 칠해주고 재귀적으로 인접 정점을 호출하는 내용이다.   
+
+
+이렇게 모든 정점들을 색칠하고 나면 각 정점마다 인접한 정점이 다른 색깔인지 확인해 봐야한다.   
+
+그것을 확인하기 위해 다음과 같이 코드를 만들어 봤다.    
+
+~~~java
+for(int index =1; index <=V; index++)
+{
+	int size =graph[index].size();
+	for(int i =0; i <size; i++)
+	{
+		int adj =graph[index].get(i);
+		if(color[index] ==color[adj])
+			return false;
+	}
+}
+return true;
+~~~
+
+코드에서 모든 정점에서 인접한 정점들의 색깔을 비교해보고 인접한 정점과 색깔이 같으면 바로 false를 반환
+해서 함수를 끝낸다.   
+
+모든 정점을확인하면 true를 반환해서 YES를 출력하게 한다.   
+
+
+
+~~~java
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.StringTokenizer;
+
+public class Main
+{
+	static int V;
+	static ArrayList<Integer>[] graph;
+	
+	public static void main(String[] args) throws Exception
+	{
+		BufferedReader br =new BufferedReader(new InputStreamReader(System.in));
+		BufferedWriter bw =new BufferedWriter(new OutputStreamWriter(System.out));
+		StringTokenizer st;
+		int K, E, a, b;
+		
+		K =Integer.parseInt(br.readLine());
+		while(K-- >0)
+		{
+			st =new StringTokenizer(br.readLine());
+			V =Integer.parseInt(st.nextToken());
+			E =Integer.parseInt(st.nextToken());
+			graph =new ArrayList[V+1];
+			for(int i =1; i <=V; i++)
+				graph[i] =new ArrayList<>();
+			for(int i =0; i <E; i++)
+			{
+				st =new StringTokenizer(br.readLine());
+				a =Integer.parseInt(st.nextToken());
+				b =Integer.parseInt(st.nextToken());
+				graph[a].add(b);
+				graph[b].add(a);
+			}
+			if(solve())
+				bw.write("YES\n");
+			else
+				bw.write("NO\n");
+		}
+		bw.flush();
+	}
+	static boolean solve()
+	{
+		boolean[] visited =new boolean[V+1];
+		boolean[] color =new boolean[V+1];
+		for(int start =1; start <=V; start++)
+			if(!visited[start])
+				dfs(start, visited, color);
+		
+		for(int index =1; index <=V; index++)
+		{
+			int size =graph[index].size();
+			for(int i =0; i <size; i++)
+			{
+				int adj =graph[index].get(i);
+				if(color[index] ==color[adj])
+					return false;
+			}
+		}
+		return true;
+	}
+	static void dfs(int index, boolean[] visited, boolean[] color)
+	{
+		int size =graph[index].size();
+		visited[index] =true;
+		for(int i =0; i <size; i++)
+		{
+			int next =graph[index].get(i);
+			if(!visited[next])
+			{
+				color[next] =!color[index];
+				dfs(next, visited, color);
+			}
+			
+		}
+	}
+}
+~~~
+

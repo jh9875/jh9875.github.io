@@ -1,0 +1,110 @@
+---
+layout: post
+title:  "[Baejoon] 4963번: 섬의 개수"
+date:   2020-04-01
+categories: PROBLEM_SOLVING
+permalink: /archivers/boj4963
+tags: [dfs, bfs]
+---
+
+## 문제
+
+정사각형으로 이루어져 있는 섬과 바다가 있는 지도가 있는데 섬의 개수를 구하는 문제이다.   
+
+입력은 여러개의 테스트 케이스로 이루어져 있는데, 각 테스트 케이스는
+지도의 너비와 높이 w, h가 주어지고 그 다음줄 부터 h줄 말큼 w개의 숫자가 주어진다.   
+
+문제 링크 : <https://www.acmicpc.net/problem/4963>   
+
+## 풀이
+
+이 문제도 dfs나 bfs로 해결할 수 있는 문제다.   
+
+다만 유의할 것은 보통 인접한 땅이라고 하면 상하좌우로만 생각 할 수있는데, 이 문제에선
+대각선 방향도 포함한다.   
+
+문제를 푸는 방식은 맵에서 방문하지 않은 위치에 있는 땅과 인접한 모든 땅을 방문위치로 표시하고
+섬의 개수를 1개 늘려주면 된다.   
+
+
+
+~~~java
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.StringTokenizer;
+
+public class Main
+{
+	static int w, h;
+	static int[] dirR = {-1, -1, -1, 0, 0, 1, 1, 1};
+	static int[] dirC = {-1, 0, 1, -1, 1, -1, 0, 1};
+	static boolean[][] map;
+	
+	public static void main(String[] args) throws Exception
+	{
+		BufferedReader br =new BufferedReader(new InputStreamReader(System.in));
+		BufferedWriter bw =new BufferedWriter(new OutputStreamWriter(System.out));
+		StringTokenizer st;
+		
+		while(true)
+		{
+			st =new StringTokenizer(br.readLine());
+			w =Integer.parseInt(st.nextToken());
+			h =Integer.parseInt(st.nextToken());
+			if(w ==0 && h ==0)
+				break;
+			map =new boolean[h][w];
+			for(int i =0; i <h; i++)
+			{
+				st =new StringTokenizer(br.readLine());
+				for(int j =0; j <w; j++)
+					map[i][j] =Integer.parseInt(st.nextToken()) ==1? true: false;
+			}
+			bw.write(solve() +"\n");
+		}
+		bw.flush();
+	}
+	static int solve()
+	{
+		int ret =0;
+		boolean[][] visited =new boolean[h][w];
+		
+		for(int r =0; r <h; r++)
+		{
+			for(int c =0; c <w; c++)
+			{
+				if(!visited[r][c] && map[r][c])
+				{
+					dfs(r, c, visited);
+					ret++;
+				}
+			}
+		}
+		return ret;
+	}
+	static void dfs(int r, int c, boolean[][] visited)
+	{
+		visited[r][c] =true;
+		for(int d =0; d <8; d++)
+		{
+			int nextR =r +dirR[d];
+			int nextC =c +dirC[d];
+			if(!inRange(nextR, nextC)) continue;
+			if(visited[nextR][nextC]) continue;
+			if(!map[nextR][nextC]) continue;
+			dfs(nextR, nextC, visited);
+		}
+	}
+	static boolean inRange(int r, int c)
+	{
+		if(r <0 || r >=h || c <0 || c >=w)
+			return false;
+		return true;
+	}
+}
+~~~
+
