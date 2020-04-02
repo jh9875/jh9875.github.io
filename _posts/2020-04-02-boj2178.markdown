@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "[Baejoon] 2178번: "
+title:  "[Baejoon] 2178번: 미로 탐색"
 date:   2020-04-02
 categories: PROBLEM_SOLVING
 permalink: /archivers/boj2178
