@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "[Baejoon] 7569번: 토마토"
+title:  "[Baekjoon] 7569번: 토마토"
 date:   2020-04-07
 categories: PROBLEM_SOLVING
 permalink: /archivers/boj7569

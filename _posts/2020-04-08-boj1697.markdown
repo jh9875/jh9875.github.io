@@ -1,0 +1,111 @@
+---
+layout: post
+title:  "[Baekjoon] 1697번: 숨바꼭질"
+date:   2020-04-08
+categories: PROBLEM_SOLVING
+permalink: /archivers/boj1697
+tags: [bfs]
+---
+
+## 문제
+
+수빈이와 동생이 숨바꼭질을 하고있다.   
+
+수빈이의 현재 위치는 N이고, 동생의 현재 위치는 K이다.   
+
+수빈이는 1씩 증감하거나, 두배로 이동할 수 있을때 수빈이가 동생을 가장 빨리 찾는 시간이
+몇 초 후인지 구하는 문제이다.   
+
+문제 링크 : <https://www.acmicpc.net/problem/1697>   
+
+## 풀이
+
+탐색을 최단 경로로 해야하므로 bfs로 풀었다.   
+
+문제 자체는 그리 어렵지 않다.   
+
+다만 이동 가능한 범위를 잘 확인해 주어야 한다.   
+
+   
+0부터 100000까지 일직선으로 공간이 있다고 할때
+수빈이의 위치는 N이고, 동생의 위치는 K이다.   
+
+현재 수빈이의 위치로부터 +-1씩 혹은 2배씩 이동하면서 동생의 위치를 찾으면 된다.   
+
+다만 실수하기 쉬운 부분은 이동 가능한 범위는 0부터 100000인데 이 범위를 초과하는 것이다.   
+
+현재위치+1의 위치로 이동할땐 100000을 넘지 않는지 확인하고,
+현재위치-1의 위치로 이동할땐 0보다 작지 않은지 확인해야한다.   
+
+2배의 위치를 이동할땐 위 두개의 조건을 확인해 봐야한다.   
+
+~~~java
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.Queue;
+import java.util.StringTokenizer;
+
+public class Main
+{
+	static final int MAX =100000;
+	static class Subin
+	{
+		int pos, sec;
+		Subin(int pos, int sec)
+		{
+			this.pos =pos;
+			this.sec =sec;
+		}
+	}
+	public static void main(String[] args) throws Exception
+	{
+		BufferedReader br =new BufferedReader(new InputStreamReader(System.in));
+		BufferedWriter bw =new BufferedWriter(new OutputStreamWriter(System.out));
+		StringTokenizer st;
+		int N, K, ans;
+		
+		st =new StringTokenizer(br.readLine());
+		N =Integer.parseInt(st.nextToken());
+		K =Integer.parseInt(st.nextToken());
+		ans =bfs(N, K);
+		bw.write(ans +"\n");
+		bw.flush();
+	}
+	static int bfs(int N, int K)
+	{
+		boolean[] visited =new boolean[MAX+1];
+		Queue<Subin> queue =new LinkedList<>();
+		queue.add(new Subin(N, 0));
+		visited[N] =true;
+		while(!queue.isEmpty())
+		{
+			int pos =queue.peek().pos;
+			int sec =queue.peek().sec;
+			queue.poll();
+			if(pos ==K)
+				return sec;
+			if(pos+1 <=MAX && !visited[pos+1])
+			{
+				visited[pos+1] =true;
+				queue.add(new Subin(pos+1, sec+1));
+			}
+			if(pos-1 >=0 && !visited[pos-1])
+			{
+				visited[pos-1] =true;
+				queue.add(new Subin(pos-1, sec+1));
+			}
+			if(pos*2 >=0 && pos*2 <=MAX && !visited[pos*2])
+			{
+				visited[pos*2] =true;
+				queue.add(new Subin(pos*2, sec+1));
+			}
+		}
+		return -1;
+	}
+}
+~~~
+
