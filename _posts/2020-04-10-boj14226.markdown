@@ -1,0 +1,146 @@
+---
+layout: post
+title:  "[Baekjoon] 14226번: 이모티콘"
+date:   2020-04-10
+categories: PROBLEM_SOLVING
+permalink: /archivers/boj14226
+tags: [bfs]
+---
+
+## 문제
+
+처음 화면에 1개의 이모티콘이 있다.   
+
+입력으로 숫자 S(2 <= S <= 1000)가 주어진다.   
+
+다음 3가지 연산을 이용해서 S개의 이모티콘을 만들어야 한다.   
+
+- 화면에 있는 이모티콘을 모두 복사해서 클립보드에 저장한다.   
+- 클립보드에 있는 모든 이모티콘을 화면에 붙여넣기 한다.   
+- 화면에 있는 이모티콘 중 하나를 삭제한다.   
+
+위 3개의 연산을 하는데 걸리는 시간은 1초이다.   
+
+처음 클립보드는 비어있는 상태이고, 화면에 있는 이모티콘을 복사하면 클립보드는 덮어쓰기 된다.   
+
+처음 1개의 이모티콘을 S개의 이모티콘으로 만들기 위해 필요한 최소한의 시간을 출력해야한다.   
+
+문제 링크 : <https://www.acmicpc.net/problem/14226>   
+
+## 풀이
+
+처음 문제를 보고 어떤식으로 해결해야 하는지 몰라서 문제가 설명하는 그대로 코드로 옮겨봤다.   
+
+처음에 작성했던 코드는 다음과 같다.   
+
+~~~java
+static int makeEmoticon(int screen, int clipboard)
+{
+	if(screen >S || clipboard >=S)
+		return MAX;
+	if(screen ==S)
+		return 0;
+	int ret =MAX;
+	if(screen !=clipboard)
+		ret =Math.min(ret, makeEmoticon(screen, screen) +1);						//copy
+	if(clipboard >0)
+		ret =Math.min(ret, makeEmoticon(screen +clipboard, clipboard) +1);			//paste
+	if(screen >0)
+		ret =Math.min(ret, makeEmoticon(screen-1, clipboard) +1);					//delete one
+	return ret;
+}
+~~~
+
+위 함수에서 파라미터는 현재 스크린과 클립보드에 있는 이모티콘 수이다.   
+
+함수가 반환하는 것은 연산을 하는데 걸리는 시간인데 이것을 최소로 하기 위해서 반환값을 Math.min을 이용해서
+최소가 되도록 했다.   
+
+코드를 돌려보니 정답이 나올 수 없었다.   
+
+함수를 호출하면 중복되는 계산이 무한으로 나와서 프로그램이 끝나지 않았다.   
+
+즉 같은 screen, clipboard값을 계속 확인했다.   
+
+여기서 중복확인을 하지 않게 탐색을 해야 한다는 것을 깨달았다.   
+
+그러기 위해서 boolean 2차원 배열을 만들어줬다.   
+
+그리고 이모티콘을 만들기 위해 *최소한*의 사용하기 위해서 bfs를 했다.   
+
+
+
+~~~java
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.util.LinkedList;
+import java.util.Queue;
+
+public class Main
+{
+	static class Emoticon
+	{
+		int screen, clipboard, sec;
+		Emoticon(int s, int c, int sec)
+		{
+			this.screen =s;
+			this.clipboard =c;
+			this.sec =sec;
+		}
+	}
+	
+	public static void main(String[] args) throws Exception
+	{
+		BufferedReader br =new BufferedReader(new InputStreamReader(System.in));
+		BufferedWriter bw =new BufferedWriter(new OutputStreamWriter(System.out));
+		int S, ans;
+		
+		S =Integer.parseInt(br.readLine());
+		ans =solve(S);
+		bw.write(ans +"\n");
+		bw.flush();
+	}
+	static int solve(int S)
+	{
+		boolean[][] visited =new boolean[S+1][S+1];
+		Queue<Emoticon> queue =new LinkedList<>();
+		queue.add(new Emoticon(1, 0, 0));
+		
+		while(!queue.isEmpty())
+		{
+			int s =queue.peek().screen;
+			int c =queue.peek().clipboard;
+			int sec =queue.peek().sec;
+			queue.poll();
+			if(s ==S)
+				return sec;
+			if(inRange(S, s, s) && !visited[s][s])			//copy
+			{
+				visited[s][s] =true;
+				queue.add(new Emoticon(s, s, sec+1));
+			}
+			if(inRange(S, s+c, c) && !visited[s+c][c])		//paste
+			{
+				visited[s+c][c] =true;
+				queue.add(new Emoticon(s+c, c, sec+1));
+			}
+			if(inRange(S, s-1, c) && !visited[s-1][c])		//delete one
+			{
+				visited[s-1][c] =true;
+				queue.add(new Emoticon(s-1, c, sec+1));
+			}
+		}
+		return -1;
+	}
+	
+	static boolean inRange(int S, int screen, int clipboard)
+	{
+		if(screen <0 || screen >S || clipboard <0 || clipboard >S)
+			return false;
+		return true;
+	}
+}
+~~~
+
