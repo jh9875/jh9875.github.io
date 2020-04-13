@@ -1,0 +1,117 @@
+---
+layout: post
+title:  "[Baekjoon] 15988번: 1, 2, 3더하기 3"
+date:   2020-04-13
+categories: PROBLEM_SOLVING
+permalink: /archivers/boj15988
+tags: [dp]
+---
+
+## 문제
+
+입력으로 양수 n이 주어지면 n을 1, 2, 3의 합으로 나타낼 수 있는 방법의 수를 구하는 문제이다.   
+
+출력은 방법의 수를 1,000,000,009로 나눈 나머지를 출력한다.   
+
+문제의 입력으로 테스트 케이스의 수 T가 주어지고, T개의 n이 주어진다.   
+
+문제 링크 : <https://www.acmicpc.net/problem/15988>   
+
+## 풀이
+
+전에 풀었던 1, 2, 3더하기와 비슷하다.   
+문제링크 :  <https://www.acmicpc.net/problem/9095>   
+
+다만 입력의 범위가 달라졌다.   
+
+전에 풀었던 9095번 문제는 n이 11보다 작은양수였지만, 이 문제는
+n이 1000000보다 작거나 같은 양수이다.   
+
+그렇기에 나올 수 있는 경우의 수가 훨씬 커진다.   
+
+   
+일단 n을 1, 2, 3으로 더하는 방법의 수를 구하는 함수를 만들어보자.   
+
+나는 다음과 같이 만들었다.   
+
+~~~java
+static int solve(int n)
+{
+	if(n ==0)
+		return 1;
+	int ret =0;
+	
+	if(n-1 >-1) ret +=solve(n-1);
+	if(n-2 >-1) ret +=solve(n-2);
+	if(n-3 >-1) ret +=solve(n-3);
+		
+	return ret;
+}
+~~~
+
+n이 있을때 1, 2, 3을 빼서 0이 되면 1, 2, 3을 더해서 n을 만드는 것과 같다.   
+
+범위를 초과하지 않는 선에서 n이 0이 되면 1을 반환해 1가지 방법이 되게 했다.   
+
+이렇게 하면 1, 2, 3을 더해 n이 되는 방법의 수를 구할 수 있다.   
+
+   
+다만 이대로 풀면 시간초과가 나온다.   
+
+이전에 풀었던 문제와 비교해 n의 크기가 더 크기 때문에 나올 수 있는 경우의 수가
+엄청나게 늘어난다.   
+
+그 경우의 수 중에는 중복계산되는 값들도 많은데 이것을 해결하기 위해 cache를 이용해야한다.   
+
+그럼 재귀적으로 호출되는 함수의 수가 크게 줄어서 더 빠른 연산을 할 수있다.   
+
+그리고 문제에서 T개의 테스트 케이스가 주어지고 n의 범위는 모두 같으므로 cache를 모든 테스트 케이스에 적용하면 된다.   
+
+~~~java
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.util.Arrays;
+
+public class Main
+{
+	static final int NUM =1000000;
+	static final int MOD =1000000009;
+	static int[] cache;
+	
+	public static void main(String[] args) throws Exception
+	{
+		BufferedReader br =new BufferedReader(new InputStreamReader(System.in));
+		BufferedWriter bw =new BufferedWriter(new OutputStreamWriter(System.out));
+		int T, n, ans;
+		cache =new int[NUM+1];
+		Arrays.fill(cache, -1);
+		
+		T =Integer.parseInt(br.readLine());
+		while(T-- >0)
+		{
+			n =Integer.parseInt(br.readLine());
+			ans =solve(n)%MOD;
+			bw.write(ans +"\n");
+		}
+		bw.flush();
+	}
+	static int solve(int n)
+	{
+		if(cache[n] !=-1)
+			return cache[n];
+		if(n ==0)
+			return 1;
+		int ret =0;
+		
+		if(n-1 >-1) ret +=solve(n-1)%MOD; ret %=MOD;
+		if(n-2 >-1) ret +=solve(n-2)%MOD; ret %=MOD;
+		if(n-3 >-1) ret +=solve(n-3)%MOD; ret %=MOD;
+		
+		return cache[n] =ret%MOD;
+	}
+}
+~~~
+
+

@@ -66,7 +66,7 @@ static int makeEmoticon(int screen, int clipboard)
 
 그러기 위해서 boolean 2차원 배열을 만들어줬다.   
 
-그리고 이모티콘을 만들기 위해 *최소한*의 사용하기 위해서 bfs를 했다.   
+그리고 이모티콘을 만들기 위해 *최소한*의 시간을 사용하기 위해서 bfs를 했다.   
 
 
 

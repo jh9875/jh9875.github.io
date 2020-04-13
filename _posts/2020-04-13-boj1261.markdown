@@ -1,0 +1,268 @@
+---
+layout: post
+title:  "[Baekjoon] 1261번: 알고스팟"
+date:   2020-04-13
+categories: PROBLEM_SOLVING
+permalink: /archivers/boj1261
+tags: [bfs, dijkstra]
+---
+
+## 문제
+
+문제의 입력으로 N x M 크기의 미로가 주어지고 미로는 0과 1로 이루어져있다.   
+
+0은 빈 방을 의미하고, 1은 벽을 의미한다.   
+
+빈 방은 이동 가능한 공간을 의미하고, 벽은 이동 불가하다.   
+
+다만 벽을 부수면 이동할 수 있는데, 최소한의 벽을 부수면서 목적지에 도착해야 한다.   
+
+문제 링크 : <https://www.acmicpc.net/problem/1261>   
+
+## 풀이
+
+문제는 처음 위치부터 목적지까지 최소한의 벽을 통과해야된다.   
+
+여기서 벽을 가중치라고 생각하면 된다.   
+
+즉, 최소한의 가중치를 들이면서 이동하면된다.   
+   
+
+문제를 bfs로 해결할 수 있고, 비슷한 방법이지만 다익스트라 알고리즘을 이용할 수 있다.   
+   
+일단 bfs로 해결한다고 할 때 일반적인 방법으로는 안된다.   
+
+우선순위큐를 이용해야 한다.   
+
+미로에서 이동할 수 있는 위치중에서 가중치가 가장 적게드는 위치를 우선적으로 뽑을 수 있다.   
+
+그렇기 위해서는 구조체를 다음과 같이 선언해 줘야한다.   
+
+~~~java
+static class Pos implements Comparable<Pos>
+{
+	int y, x, cost;
+	Pos(int y, int x, int cost)
+	{
+		this.y =y;
+		this.x =x;
+		this.cost =cost;
+	}
+	@Override
+	public int compareTo(Pos p)
+	{
+		return this.cost -p.cost;
+	}
+}
+~~~
+
+Pos클래스는 위치좌표 y, x와 가중치를 저장하는 구조체이다.   
+
+여기서 compareTo 함수는 아 클래스를 정렬할 때 기준을 알려주는 것이다.   
+
+여기서는 가중치가 작을수록 우선순위가 높아야 하므로 가중치가 오름차순으로 되게 만들어줬다.   
+
+이젠 bfs랑 똑같이하면 된다.   
+
+함수는 다음과 같다.   
+
+~~~java
+static int bfs(int M, int N, int[][] maze)
+{
+	int ret =Integer.MAX_VALUE;
+	boolean[][] visited =new boolean[N][M];
+	PriorityQueue<Pos> pq =new PriorityQueue<>();
+	pq.add(new Pos(0, 0, 0));
+	while(!pq.isEmpty())
+	{
+		int y =pq.peek().y;
+		int x =pq.peek().x;
+		int cost =pq.peek().cost;
+		pq.poll();
+		if(y ==N-1 && x ==M-1)
+			ret =Math.min(ret, cost);
+		for(int d =0; d <4; d++)
+		{
+			int nextY =y +dirY[d];
+			int nextX =x +dirX[d];
+			if(!inRange(nextY, nextX, M, N)) continue;
+			if(visited[nextY][nextX]) continue;
+				
+			visited[nextY][nextX] =true;
+			if(maze[nextY][nextX] ==1)
+				pq.add(new Pos(nextY, nextX, cost+1));
+			else
+				pq.add(new Pos(nextY, nextX, cost));
+		}
+	}
+	return ret;
+}
+~~~
+   
+   
+다음은 다익스트라 알고리즘을 이용해보자.   
+
+다익스트라 알고리즘은 단일시작점 최단경로 알고리즘이다.   
+
+가중치가 있는 그래프에서 최단경로를 찾을 때 사용한다.   
+
+다익스트라의 원리는 방문한 지점과 방문하지 않은 지점을 나누며, 방문하지 않은 지점은 거리가 무한대이다.   
+
+현재 있는 위치를 기준으로 인접한 노드중에 현재위치+인접노드의 가중치를 더한 값과
+시작위치로부터 인접한 노드의 최단경로를 비교해가면서 최신화 하면 된다.   
+
+그럼 각 위치는 시작점으로부터 최단겨리의 정보를 가지고 있는것이다.   
+
+이것은 int형 2차원 배열에 저장하면 된다.   
+
+이것을 구현한 코드는 아래와 같다.   
+
+~~~java
+static int dijkstra(int M, int N, int[][] maze)
+{
+	int[][] dist =new int[N][M];
+	for(int i =0; i <N; i++)
+		Arrays.fill(dist[i], Integer.MAX_VALUE);
+	PriorityQueue<Pos> pq =new PriorityQueue<>();
+	pq.add(new Pos(0, 0, 0));
+	dist[0][0] =0;
+	while(!pq.isEmpty())
+	{
+		int y =pq.peek().y;
+		int x =pq.peek().x;
+		int cost =pq.peek().cost;
+		pq.poll();
+		if(y ==N-1 && x ==M-1)
+			break;
+		for(int d =0; d <4; d++)
+		{
+			int nextY =y +dirY[d];
+			int nextX =x +dirX[d];
+			
+			if(!inRange(nextY, nextX, M, N)) continue;
+			int nextCost =cost + (maze[nextY][nextX] ==1? 1: 0);
+			if(dist[nextY][nextX] >nextCost)
+			{
+				dist[nextY][nextX] =nextCost;
+				pq.add(new Pos(nextY, nextX, nextCost));
+			}
+		}
+	}
+	return dist[N-1][M-1];
+}
+~~~
+
+dist라는 int형 2차원 배열은 시작위치로부터 각 위치의 최단거리를 저장하는 배열이다.   
+
+처음엔 모든 위치를 무한대로 해준다.   
+
+가장먼저 시작위치를 dist[0][0] =0으로 해주고 큐에 넣는다.   
+
+그 다음은 방문한 위치 중 가중치가 가장 적게드는 위치를 기준으로 인접한 부분의 최단거리를 최신화 해야한다.   
+
+~~~java
+int nextCost =cost + (maze[nextY][nextX] ==1? 1: 0);
+if(dist[nextY][nextX] >nextCost)
+{
+	dist[nextY][nextX] =nextCost;
+	pq.add(new Pos(nextY, nextX, nextCost));
+}
+~~~
+
+시작위치로부터 현재 위치의 최단거리+인접한 위치의 가중치가 dist에 있는값보다 작다면 최신화하고 큐에 넣어주면 된다.   
+
+위의 if조건으로 인해 중복계산을 하지 않게된다.   
+   
+
+~~~java
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.util.Arrays;
+import java.util.PriorityQueue;
+import java.util.StringTokenizer;
+
+public class Main
+{
+	static class Pos implements Comparable<Pos>
+	{
+		int y, x, cost;
+		Pos(int y, int x, int cost)
+		{
+			this.y =y;
+			this.x =x;
+			this.cost =cost;
+		}
+		@Override
+		public int compareTo(Pos p)
+		{
+			return this.cost -p.cost;
+		}
+	}
+	static int[] dirY = {1, 0, -1, 0};
+	static int[] dirX = {0, 1, 0, -1};
+	
+	public static void main(String[] args) throws Exception
+	{
+		BufferedReader br =new BufferedReader(new InputStreamReader(System.in));
+		BufferedWriter bw =new BufferedWriter(new OutputStreamWriter(System.out));
+		StringTokenizer st;
+		int M, N, ans;
+		int[][] maze;
+		
+		st =new StringTokenizer(br.readLine());
+		M =Integer.parseInt(st.nextToken());
+		N =Integer.parseInt(st.nextToken());
+		maze =new int[N][M];
+		for(int i =0; i <N; i++)
+		{
+			String input =br.readLine();
+			for(int j =0; j <M; j++)
+				maze[i][j] =input.charAt(j)-'0';
+		}
+		ans =dijkstra(M, N, maze);
+		bw.write(ans +"\n");
+		bw.flush();
+	}
+	static int dijkstra(int M, int N, int[][] maze)
+	{
+		int[][] dist =new int[N][M];
+		for(int i =0; i <N; i++)
+			Arrays.fill(dist[i], Integer.MAX_VALUE);
+		PriorityQueue<Pos> pq =new PriorityQueue<>();
+		pq.add(new Pos(0, 0, 0));
+		dist[0][0] =0;
+		while(!pq.isEmpty())
+		{
+			int y =pq.peek().y;
+			int x =pq.peek().x;
+			int cost =pq.peek().cost;
+			pq.poll();
+			if(y ==N-1 && x ==M-1)
+				break;
+			for(int d =0; d <4; d++)
+			{
+				int nextY =y +dirY[d];
+				int nextX =x +dirX[d];
+				
+				if(!inRange(nextY, nextX, M, N)) continue;
+				int nextCost =cost + (maze[nextY][nextX] ==1? 1: 0);
+				if(dist[nextY][nextX] >nextCost)
+				{
+					dist[nextY][nextX] =nextCost;
+					pq.add(new Pos(nextY, nextX, nextCost));
+				}
+			}
+		}
+		return dist[N-1][M-1];
+	}
+	static boolean inRange(int y, int x, int M, int N)
+	{
+		if(y <0 || y >=N || x <0 || x >=M)
+			return false;
+		return true;
+	}
+}
+~~~
+
