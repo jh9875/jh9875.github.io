@@ -1,0 +1,214 @@
+---
+layout: post
+title:  "[Baekjoon] 3055번: 탈출"
+date:   2020-04-26
+categories: PROBLEM_SOLVING
+permalink: /archivers/boj3055
+tags: [bfs, simulation]
+---
+
+## 문제
+
+티떱숲에 있는 고숨도치가 홍수를 피해 맵에서 탈출할 수 있는 가장 빠른 시간을 출력하는 문제이다.   
+
+문제의 입력으로 맵의 크기 R, C가 주어지고 그 다음줄부터 R개 줄에 맵이 주어진다.   
+
+맵의 구성요소로는 S, D, *, ., X가 있으며
+S는 시작위치, D는 탈출위치, *은 물이 있는 지역, .은 비어있는 지역, X는 돌을 의미한다.   
+
+고숨도치는 물이 있는 지역과 찰 예정인 지역으로 이동할 수 없다.    
+
+자세한 문제는 아래 링크에 있다.   
+
+문제 링크 : <https://www.acmicpc.net/problem/3055>   
+
+## 풀이
+
+문제는 최단경로로 탈출해야 하는 문제이기 때문에 bfs로 풀었다.   
+
+문제는 단순히 고슴도치의 위치만 알아서는 안되고, 확장되는 홍수를 맵에 계속 업데이트 해줘야한다.   
+
+이를 해결하기 위해서 물이 있는 지역의 위치를 따로 큐에 저장해줬다.   
+
+일단 고숨도치가 최단경로로 탈출하는 코드는 아래와 같이 만들 수 있다.   
+
+~~~java
+while(!hedgehog.isEmpty())
+{
+	int y =hedgehog.peek().y;
+	int x =hedgehog.peek().x;
+	int m =hedgehog.peek().m;
+	hedgehog.poll();
+	if(map[y][x] =='D')
+		return m;
+	for(int d =0; d <4; d++)
+	{
+		int nextY =y +dirY[d];
+		int nextX =x +dirX[d];
+		
+		if(!inRange(R, C, nextY, nextX) || visited[nextY][nextX]) continue;
+		if(map[nextY][nextX] =='.' || map[nextY][nextX] =='D')
+		{
+			hedgehog.add(new Pos(nextY, nextX, m+1));
+			visited[nextY][nextX] =true;
+		}
+	}
+}
+~~~
+
+현재 위치에서 이동 가능한 위치들을 큐에 넣어주면서 최단 경로를 찾으면 된다.   
+
+홍수는 다음과 같이 처리했다. 코드의 일부는 다음과 같다.   
+
+~~~java
+while(!flood.isEmpty() && flood.peek().m ==m)
+{
+	int fy =flood.peek().y;
+	int fx =flood.peek().x;
+	flood.poll();
+	for(int d =0; d <4; d++)
+	{
+		int nextFY =fy +dirY[d];
+		int nextFX =fx +dirX[d];
+		if(!inRange(R, C, nextFY, nextFX)) continue;
+		if(map[nextFY][nextFX] =='.')
+		{
+			map[nextFY][nextFX] ='*';
+			flood.add(new Pos(nextFY, nextFX, m+1));
+		}
+	}
+}
+~~~
+
+위 코드가 삽입되는 위치는 고숨도치의 위치를 파악하기 전이다.   
+
+while의 조건부분은 볼때 큐가 비어있지 않으면서 고숨도치가 이동한 시간이랑 현재 물이 확장된 시간이 같아야 한다.   
+
+이는 고숨도치는 물이 차오를 예정인 지역으로 이동할 수 없으므로 물의 위치를 먼저 갱신해 줘야 하기 때문이다.   
+
+
+~~~java
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.Queue;
+import java.util.StringTokenizer;
+
+public class Main
+{
+	static class Pos
+	{
+		int y, x, m;
+		Pos(int y, int x, int m)
+		{
+			this.y =y;
+			this.x =x;
+			this.m =m;
+		}
+	}
+	static char[][] map;
+	static int[] dirY = {1, 0, -1, 0};
+	static int[] dirX = {0, 1, 0, -1};
+	
+	public static void main(String[] args) throws Exception
+	{
+		BufferedReader br =new BufferedReader(new InputStreamReader(System.in));
+		BufferedWriter bw =new BufferedWriter(new OutputStreamWriter(System.out));
+		StringTokenizer st;
+		String input;
+		ArrayList<Pos> floodList =new ArrayList<>();
+		int R, C, y =0, x =0, ans;
+		
+		st =new StringTokenizer(br.readLine());
+		R =Integer.parseInt(st.nextToken());
+		C =Integer.parseInt(st.nextToken());
+		map =new char[R][C];
+		for(int i =0; i <R; i++)
+		{
+			input =br.readLine();
+			for(int j =0; j <C; j++)
+			{
+				char ch =input.charAt(j);
+				if(ch =='S')
+				{
+					y =i;
+					x =j;
+				}
+				if(ch =='*')
+					floodList.add(new Pos(i, j, 0));
+				map[i][j] =ch;
+			}
+		}
+		ans =bfs(R, C, y, x, floodList);
+		if(ans ==-1)
+			bw.write("KAKTUS\n");
+		else
+			bw.write(ans +"\n");
+		bw.flush();
+	}
+	static int bfs(int R, int C, int sy, int sx, ArrayList<Pos> floodList)
+	{
+		Queue<Pos> flood =new LinkedList<>();
+		Queue<Pos> hedgehog =new LinkedList<>();
+		boolean[][] visited =new boolean[R][C];
+		
+		for(Pos p : floodList)
+			flood.add(p);
+		hedgehog.add(new Pos(sy, sx, 0));
+		visited[sy][sx] =true;
+		
+		while(!hedgehog.isEmpty())
+		{
+			int y =hedgehog.peek().y;
+			int x =hedgehog.peek().x;
+			int m =hedgehog.peek().m;
+			hedgehog.poll();
+			if(map[y][x] =='D')
+				return m;
+			
+			while(!flood.isEmpty() && flood.peek().m ==m)
+			{
+				int fy =flood.peek().y;
+				int fx =flood.peek().x;
+				flood.poll();
+				for(int d =0; d <4; d++)
+				{
+					int nextFY =fy +dirY[d];
+					int nextFX =fx +dirX[d];
+					if(!inRange(R, C, nextFY, nextFX)) continue;
+					if(map[nextFY][nextFX] =='.')
+					{
+						map[nextFY][nextFX] ='*';
+						flood.add(new Pos(nextFY, nextFX, m+1));
+					}
+				}
+			}
+			
+			for(int d =0; d <4; d++)
+			{
+				int nextY =y +dirY[d];
+				int nextX =x +dirX[d];
+				
+				if(!inRange(R, C, nextY, nextX) || visited[nextY][nextX]) continue;
+				if(map[nextY][nextX] =='.' || map[nextY][nextX] =='D')
+				{
+					hedgehog.add(new Pos(nextY, nextX, m+1));
+					visited[nextY][nextX] =true;
+				}
+			}
+		}
+		return -1;
+	}
+	static boolean inRange(int R, int C, int y, int x)
+	{
+		if(y <0 || y >=R || x <0 || x >=C)
+			return false;
+		return true;
+	}
+}
+~~~
+
+
