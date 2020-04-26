@@ -1,0 +1,103 @@
+---
+layout: post
+title:  "[Baekjoon] 11052번: 카드 구매하기"
+date:   2020-04-26
+categories: PROBLEM_SOLVING
+permalink: /archivers/boj11052
+tags: [dp]
+---
+
+## 문제
+
+1에서 N까지 각각 수만큼 들어있는 카드팩이 있다.   
+
+각 카드팩의 가격은 다르다.   
+
+사야하는 카드팩의 개수가 N개일 때, 가격이 최대가 되게 카드팩을 골라야 한다.   
+
+문제의 입력으로 숫자 N과 N개의 카드팩 가격이 주어진다.   
+
+N개의 카드를 갖기위해 지불해야 하는 최대 금액을 출력해야한다.   
+
+문제 링크 : <https://www.acmicpc.net/problem/11052>   
+
+## 풀이
+
+문제를 동적계획법으로 풀어봤다.   
+
+코드는 아래와 같이 만들어봤다.   
+
+~~~java
+static int solve(int rest)
+{
+	if(rest ==0)
+		return 0;
+	if(cache[rest] !=-1)
+		return cache[rest];
+	int ret =0;
+		
+	for(int i =1; i <=N; i++)
+		if(rest >=i)
+			ret =Math.max(ret, solve(rest-i) +cardPack[i]);
+	return cache[rest] =ret;
+}
+~~~
+
+문제를 해결하는 함수를 solve라고 해보자.   
+
+solve의 파라미터 rest 변수는 N개를 뽑기 위해 더 뽑아야 하는 갯수를 의미한다.   
+
+함수가 반환하는 값은 뽑아야 하는 카드 수가 rest개 일때 남은 카드를 뽑아서 나올 수 있는 최대 금액이다.   
+
+이때 이 금액의 값은 변하지 않기 때문에 cache에 저장해둬서 나중에 필요할 때 다시 사용할 수 있다.   
+
+
+
+~~~java
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.util.Arrays;
+import java.util.StringTokenizer;
+
+public class Main
+{
+	static int N;
+	static int[] cardPack;
+	static int[] cache;
+	
+	public static void main(String[] args) throws Exception
+	{
+		BufferedReader br =new BufferedReader(new InputStreamReader(System.in));
+		BufferedWriter bw =new BufferedWriter(new OutputStreamWriter(System.out));
+		StringTokenizer st;
+		int ans;
+		
+		N =Integer.parseInt(br.readLine());
+		cardPack =new int[N+1];
+		cache =new int[N+1];
+		Arrays.fill(cache, -1);
+		st =new StringTokenizer(br.readLine());
+		for(int i =1; i <=N; i++)
+			cardPack[i] =Integer.parseInt(st.nextToken());
+		ans =solve(N);
+		bw.write(ans +"\n");
+		bw.flush();
+	}
+	static int solve(int rest)
+	{
+		if(rest ==0)
+			return 0;
+		if(cache[rest] !=-1)
+			return cache[rest];
+		int ret =0;
+		
+		for(int i =1; i <=N; i++)
+			if(rest >=i)
+				ret =Math.max(ret, solve(rest-i) +cardPack[i]);
+		return cache[rest] =ret;
+	}
+}
+~~~
+
