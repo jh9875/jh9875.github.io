@@ -1,0 +1,115 @@
+---
+layout: post
+title:  "[Baekjoon] 13549번: 숨바꼭질3"
+date:   2020-07-01
+categories: PROBLEM_SOLVING
+permalink: /archivers/boj13549
+tags: [dijkstra]
+---
+
+## 문제
+
+공간이 일직선으로 이루어져 있다고 할 때 수빈이와 동생의 좌표가 주어지고 수빈이가 동생의 위치로
+이동하는데 걸리는 최단 시간을 구하는 문제이다.   
+
+수빈이의 현재 위치가 X일때 이동을 다음과 같이 할 수 있다.   
+
+- X+1
+- X-1
+- X*2
+
++1과 -1은 이동하는데 1초의 시간이 걸리지만 *2는 0초의 시간이 걸린다.   
+
+
+문제 링크 : <https://www.acmicpc.net/problem/13549>   
+
+## 풀이
+
+처음 문제를 BFS로 풀어봤다.   
+
+문제의 예시정도는 통과했지만 답은 실패했다.   
+
+무엇이 문제인가 찾아봤더니 BFS는 최단거리를 찾아주기는 하지만 이동의 가중치가 모두 같을 때
+가능한 방법이었다.   
+
+문제는 *2만큼 갈땐 0의 가중치이므로 단순한 BFS로는 문제를 해결할 수 없었다.   
+
+결국은 다익스트라 알고리즘으로 해결했다.   
+
+0부터 100000까지 저장할 수 있는 dist배열을 만들어주고 처음 위치에서 모든위치의 최단거리를 구하고
+동생이 있는 곳의 거리를 반환해주면 된다.   
+
+시간이 적게드는 거리를 우선으로 탐색하면서 dist배열의 거리를 갱신해주면 된다.   
+
+
+
+~~~java
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.util.Arrays;
+import java.util.PriorityQueue;
+import java.util.StringTokenizer;
+
+public class Main {
+
+	static class Situation implements Comparable<Situation> {
+		int x;
+		int sec;
+		Situation(int x, int sec) {
+			this.x =x;
+			this.sec =sec;
+		}
+		@Override
+		public int compareTo(Situation s) {
+			return this.sec -s.sec;
+		}
+	}
+	static final int MAX =100000;
+	static int N, K;
+	
+	public static void main(String[] args) throws Exception {
+		BufferedReader br =new BufferedReader(new InputStreamReader(System.in));
+		BufferedWriter bw =new BufferedWriter(new OutputStreamWriter(System.out));
+		StringTokenizer st;
+		
+		st =new StringTokenizer(br.readLine());
+		N =Integer.parseInt(st.nextToken());
+		K =Integer.parseInt(st.nextToken());
+		
+		bw.write(solve() +"\n");
+		bw.flush();
+	}
+	
+	static int solve() {
+		int[] dist =new int[MAX +1];
+		PriorityQueue<Situation> pq =new PriorityQueue<>();
+		Arrays.fill(dist, Integer.MAX_VALUE);
+		
+		pq.add(new Situation(N, 0));
+		dist[N] =0;
+		
+		while(!pq.isEmpty()) {
+			int x =pq.peek().x;
+			int sec =pq.peek().sec;
+			pq.poll();
+			
+			if(x+1 <=MAX && dist[x+1] >sec+1) {
+				dist[x+1] =sec+1;
+				pq.add(new Situation(x+1, sec+1));
+			}
+			if(x-1 >=0 && dist[x-1] >sec+1) {
+				dist[x-1] =sec+1;
+				pq.add(new Situation(x-1, sec+1));
+			}
+			if(x*2 <=MAX && dist[x*2] >sec) {
+				dist[x*2] =sec;
+				pq.add(new Situation(x*2, sec));
+			}	
+		}
+		return dist[K];
+	}
+}
+~~~
+
