@@ -1,0 +1,148 @@
+---
+layout: post
+title:  "[Baekjoon] 15990번: 1, 2, 3 더하기 5"
+date:   2020-07-12
+categories: PROBLEM_SOLVING
+permalink: /archivers/boj15990
+tags: [dp]
+---
+
+## 문제
+
+어떤 정수 n이 주어질 때, 이 수를 1, 2, 3의 합으로 나타내는 경우의 수를 구하는 문제다.   
+
+수는 연속이 되면 안된다.   
+
+예를들어 4를 1, 2, 3의 합으로 나타내면 다음과 같다.   
+- 1+2+1
+- 1+3
+- 3+1
+
+문제의 입력으로 테스트케이스 T가 주어지고 다음줄부터 T개의 n이 주어질 때 각 테스트케이스의 결과물을 1000000009로 나눈
+나머지를 출력한다.   
+
+문제 링크 : <https://www.acmicpc.net/problem/15990>   
+
+## 풀이
+
+단순히 1, 2, 3의 합을 구해야 된다면 크게 까다롭지 않겠지만, 두 수를 연속으로 사용하면 안되었기에 각 수를
+뽑을 때 전에 뽑았던 수도 고려를 해야한다.   
+
+그리고 주의해야될 것은 문제의 크기가 상당히 크다.   
+
+무의식적으로 int형을 사용하다가 연산을 하는 도중에 범위를 초과하게 된다.   
+
+그래서 long형으로 결과를 반환해야 한다.   
+
+나는 방법의 수를 구하는 코드를 다음과 같이 만들었다.   
+
+~~~java
+static long solve(int rest, int prev) {
+	if(rest ==0) return 1;
+	if(cache[rest][prev] !=-1) return cache[rest][prev];
+	
+	long ret =0;
+	if(prev ==1) {
+		if(rest-2 >=0) ret +=solve(rest-2, 2) %MOD;
+		if(rest-3 >=0) ret +=solve(rest-3, 3) %MOD;
+	}else if(prev ==2) {
+		if(rest-1 >=0) ret +=solve(rest-1, 1) %MOD;
+		if(rest-3 >=0) ret +=solve(rest-3, 3) %MOD;
+	}else if(prev ==3) {
+		if(rest-1 >=0) ret +=solve(rest-1, 1) %MOD;
+		if(rest-2 >=0) ret +=solve(rest-2, 2) %MOD;
+	}else {
+		if(rest-1 >=0) ret +=solve(rest-1, 1) %MOD;
+		if(rest-2 >=0) ret +=solve(rest-2, 2) %MOD;
+		if(rest-3 >=0) ret +=solve(rest-3, 3) %MOD;
+	}
+	return cache[rest][prev] =(int) (ret %MOD);
+}
+~~~
+
+함수의 매개변수 파라미터 rest는 n을 1, 2, 3으로 만들면서 남은 수를 의미한다.   
+
+이 수가 0이되면 1가지 경우로 인정해준다.   
+
+prev는 전에 나왔던 숫자를 의미한다.   
+
+전에 나왔던 숫자에 따라 현재 더해줄 수 있는 숫자가 다르기 때문에 필요하다.   
+
+전에 1을 더해줬다면 2, 3을 더해주는 경우를 생각해보고, 2를 더해줬다면 1, 3을 더해주는 경우를,
+3을 더해줬다면 1, 2를 더해주는 경우를 생각해봐야한다.   
+
+그리고 위 코드에서 else는 처음 아무것도 없을 때 1, 2, 3모두가 나올 수 있기 때문에 저렇게 해줬다.   
+
+그리고 cache는 이 문제에서 중복되는 계산을 방지하기 위해 만든 2차원 배열이다.   
+
+더해야하는 숫자가 작아질수록 자주 나타나기 때문이다.   
+
+예를들어 n이 10이라고 하면 처음에 다음과 같은 경우를 생각해 볼 수 있다.   
+- 1을 더하고 나머지 9를 더하는 경우
+- 2를 더하고 나머지 8을 더하는 경우
+- 3을 더하고 나머지 7을 더하는 경우
+
+1의 경우 다음과 같은 상황이 생긴다.   
+- 경우1에서 2를 더하고 나머지 7을 더해야 하는 경우
+- 경우1에서 3을 더하고 나머지 6을 더해야 하는 경우
+
+위 경우에선 더해야 하는 나머지가 7일때 중복이 생긴다.   
+
+n의 크기가 커질수록 중복 계산이 많아지기 때문에 값을 저장해두고 이용할 필요가 있다.   
+
+전체 구현코드는 아래와 같다.   
+
+
+~~~java
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.util.Arrays;
+
+public class Main {
+
+	static final long MOD =1000000009;
+	static int[][] cache;
+	
+	public static void main(String[] args) throws Exception {
+		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+		BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
+		int T, n;
+		cache =new int[100001][4];
+		for(int i =0; i <100001; i++)
+			Arrays.fill(cache[i], -1);
+		
+		T =Integer.parseInt(br.readLine());
+		while(T-- >0) {
+			n =Integer.parseInt(br.readLine());
+			bw.write(solve(n, 0) +"\n");
+		}
+		bw.flush();
+		bw.close();
+		br.close();
+	}
+	static long solve(int rest, int prev) {
+		if(rest ==0) return 1;
+		if(cache[rest][prev] !=-1) return cache[rest][prev];
+		
+		long ret =0;
+		if(prev ==1) {
+			if(rest-2 >=0) ret +=solve(rest-2, 2) %MOD;
+			if(rest-3 >=0) ret +=solve(rest-3, 3) %MOD;
+		}else if(prev ==2) {
+			if(rest-1 >=0) ret +=solve(rest-1, 1) %MOD;
+			if(rest-3 >=0) ret +=solve(rest-3, 3) %MOD;
+		}else if(prev ==3) {
+			if(rest-1 >=0) ret +=solve(rest-1, 1) %MOD;
+			if(rest-2 >=0) ret +=solve(rest-2, 2) %MOD;
+		}else {
+			if(rest-1 >=0) ret +=solve(rest-1, 1) %MOD;
+			if(rest-2 >=0) ret +=solve(rest-2, 2) %MOD;
+			if(rest-3 >=0) ret +=solve(rest-3, 3) %MOD;
+		}
+		return cache[rest][prev] =(int) (ret %MOD);
+	}
+}
+
+~~~

@@ -1,0 +1,77 @@
+---
+layout: post
+title:  "[Baekjoon] 16194번: 카드 구매하기2"
+date:   2020-07-12
+categories: PROBLEM_SOLVING
+permalink: /archivers/boj16194
+tags: [dp]
+---
+
+## 문제
+
+백준 온라인 저지에 있는 카드 구매하기1(링크: <https://www.acmicpc.net/problem/16194>)과
+거의 비슷한 문제다.
+
+다만 N개의 카드를 구매하는데 최소한의 금액을 들게 해야한다.   
+
+문제의 입력으로 카드팩의 갯수 N과 두번째 줄에는 N개의 수가 주어진다.   
+
+각 수는 i번째 카드팩의 금액이고, 각 카트팩에는 카드 i개가 들어있다.   
+
+N개의 카드를 구매하기 위해 지불해야 하는 금액의 최솟값을 출력해야 한다.   
+
+
+문제 링크 : <https://www.acmicpc.net/problem/16194>   
+
+## 풀이
+
+카드 구매하기 문제랑 풀이가 똑같다.   
+
+<https://jh9875.github.io/archivers/boj11052>
+
+
+~~~java
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.util.Arrays;
+import java.util.StringTokenizer;
+
+public class Main {
+
+	static int N;
+	static int[] cards;
+	static int[] cache;
+
+	public static void main(String[] args) throws Exception {
+		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+		BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
+		StringTokenizer st;
+
+		N =Integer.parseInt(br.readLine());
+		cards =new int[N+1];
+		cache =new int[N+1];
+		Arrays.fill(cache, -1);
+		st =new StringTokenizer(br.readLine());
+		for(int i =1; i <=N; i++)
+			cards[i] =Integer.parseInt(st.nextToken());
+		bw.write(pickCardpack(N) +"\n");
+		bw.flush();
+		
+	}
+	static int pickCardpack(int rest) {
+		if(rest ==0)
+			return 0;
+		if(cache[rest] !=-1)
+			return cache[rest];
+		int ret =987654321;
+		for(int i =1; i <=N; i++)
+			if(rest-i >=0)
+				ret =Math.min(ret, pickCardpack(rest-i) +cards[i]);
+		
+		return cache[rest] =ret;
+	}
+}
+
+~~~
