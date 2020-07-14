@@ -1,0 +1,163 @@
+---
+layout: post
+title:  "[Baekjoon] 1753번: 최단경로"
+date:   2020-07-14
+categories: PROBLEM_SOLVING
+permalink: /archivers/boj1753
+tags: [dijkstra]
+---
+
+## 문제
+
+문제에서 방향그래프가 주어지면 시작 지점에서 다른 모든 지점으로의 최단 경로를 구하는 문제이다.   
+
+문제의 입력으로 첫줄에 정점의 개수 V와 간선의 개수 E가 주어진다.   
+
+그 다음줄엔 시작점 번호 K가 주어지고, 그 다음 줄부터 E개줄에 걸쳐 u, v, w가 주어지는데
+u에서 w로 가는 가중치가 w인 간선이다.   
+
+문제 링크 : <https://www.acmicpc.net/problem/1753>   
+
+## 풀이
+
+단일 시작점 최단 단로 문제이다.   
+
+그래프에서 가중치가 없으므로 다익스트라 알고리즘으로 해결할 수 있다.   
+
+문제를 해결한 함수는 다음과 같다.   
+
+~~~java
+static int[] dijkstra(int N, int start, ArrayList<Vertex>[] graph) {
+	int[] dist =new int[N+1];
+	PriorityQueue<Vertex> pq =new PriorityQueue<>();
+	
+	Arrays.fill(dist, Integer.MAX_VALUE);
+	dist[start] =0;
+	pq.add(new Vertex(start, 0));
+		
+	while(!pq.isEmpty()) {
+		int here =pq.peek().vertex;
+		int cost =pq.peek().cost;
+		pq.poll();
+			
+		if(dist[here] <cost) continue;
+			
+		int size =graph[here].size();
+		for(int i =0; i <size; i++) {
+			int there =graph[here].get(i).vertex;
+			int nextCost =cost +graph[here].get(i).cost;
+				
+			if(dist[there] >nextCost) {
+				dist[there] =nextCost;
+				pq.add(new Vertex(there, nextCost));
+			}
+		}
+	}
+	return dist;
+}
+~~~
+
+위 함수에서 dist는 시작 지점에서 각 정점까지의 거리를 나타낸다.   
+
+처음엔 이어져있지 않다는 가정하에 무한대 값으로 초기화 하고, 처음 시작위치는 거리를 0으로 시작한다.   
+
+다익스트라 알고리즘은 각 정점을 탐험할 때 시작 지점으로부터 현재 탐험하고 있는 정점의 최단 가중치 합을 기록하면서 최단 거리를 구한다.   
+
+위 while문에서 here은 현재 있는 정점이고 cost는 시작지점에서 현재 정점까지의 최단 가중치이다.   
+
+만약 dist에 기록되어있는 최단거리보다 크다면 이 다음에 이어질 최단경로도 사실상 최단경로가 아니므로 그냥 continue한다.   
+
+현재 정점에서 이어져 있는 정점 중 dist에 기록되어 있는 정점보다 가중치가 작다면 dist에 기록하고 priorityQueue에 넣어서
+이 정점과 이어져 있는 다른 정점들을 탐험한다.   
+
+이 과정을 거치다 보면 dist에는 시작 위치로부터 각 정점까지의 최단 경로만 남는다.   
+
+
+~~~java
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.PriorityQueue;
+import java.util.StringTokenizer;
+
+public class Main {
+
+	static class Vertex implements Comparable<Vertex>{
+		int vertex, cost;
+		Vertex(int vertex, int cost) {
+			this.vertex =vertex;
+			this.cost =cost;
+		}
+		@Override
+		public int compareTo(Vertex v) {
+			return this.cost -v.cost;
+		}
+	}
+	
+	public static void main(String[] args) throws Exception {
+		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+		BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
+		StringTokenizer st;
+		int V, E, K;
+		ArrayList<Vertex>[] graph;
+		
+		st =new StringTokenizer(br.readLine());
+		V =Integer.parseInt(st.nextToken());
+		E =Integer.parseInt(st.nextToken());
+		K =Integer.parseInt(br.readLine());
+		graph =new ArrayList[V+1];
+		for(int i =1; i <V+1; i++)
+			graph[i] =new ArrayList<>();
+		
+		while(E-- >0) {
+			st =new StringTokenizer(br.readLine());
+			int u =Integer.parseInt(st.nextToken());
+			int v =Integer.parseInt(st.nextToken());
+			int w =Integer.parseInt(st.nextToken());
+			graph[u].add(new Vertex(v, w));
+		}
+		int[] ans =dijkstra(V, K, graph);
+		for(int i =1; i <V+1; i++) {
+			if(ans[i] ==Integer.MAX_VALUE)
+				bw.write("INF\n");
+			else
+				bw.write(ans[i] +"\n");
+		}
+		bw.flush();
+		bw.close();
+		br.close();
+	}
+	static int[] dijkstra(int N, int start, ArrayList<Vertex>[] graph) {
+		int[] dist =new int[N+1];
+		PriorityQueue<Vertex> pq =new PriorityQueue<>();
+		
+		Arrays.fill(dist, Integer.MAX_VALUE);
+		dist[start] =0;
+		pq.add(new Vertex(start, 0));
+		
+		while(!pq.isEmpty()) {
+			int here =pq.peek().vertex;
+			int cost =pq.peek().cost;
+			pq.poll();
+			
+			if(dist[here] <cost) continue;
+			
+			int size =graph[here].size();
+			for(int i =0; i <size; i++) {
+				int there =graph[here].get(i).vertex;
+				int nextCost =cost +graph[here].get(i).cost;
+				
+				if(dist[there] >nextCost) {
+					dist[there] =nextCost;
+					pq.add(new Vertex(there, nextCost));
+				}
+			}
+		}
+		return dist;
+	}
+}
+
+~~~
