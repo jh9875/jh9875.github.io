@@ -1,0 +1,89 @@
+---
+layout: post
+title:  "[Baekjoon] 1748번: 수 이어 쓰기1"
+date:   2020-07-26
+categories: PROBLEM_SOLVING
+permalink: /archivers/boj1748
+tags: [implement]
+---
+
+## 문제
+
+1부터 N까지의 수를 모두 이어 쓰면 몇자리가 되는지 구하는 문제이다.   
+
+문제의 입력으로 N(1≤N≤100,000,000)이 주어진다.   
+
+문제의 출력으로 1부터 N까지 수를 이어붙인 자릿수를 구한다.   
+
+문제 링크 : <https://www.acmicpc.net/problem/1748>   
+
+## 풀이
+
+자릿수가 n인 수의 갯수는 정해져 있다.   
+
+1자릿수는 1~9까지 (9-1+1) =9가지
+2자릿수는 10~99까지 (99-10+1) =90가지
+3자릿수는 1000~999까지 (999-100+1) =900가지   
+
+이런식으로 각 자릿수에 맞는 숫자의 수는 위와같이 규칙적이다.   
+
+그렇다면 1부터 N까지의 자릿수의 합을 구하는 공식은 위 규칙을 통해 구할 수 있다.   
+
+일단 N이 120일때를 보자.   
+
+자릿수가 1인 수들이랑 자릿수가 2인 수들의 자릿수의 합은 다음과 같다.   
+
+- (1 * 9) + (2 * 90)   
+
+그리고 100부터 120까지 자릿수의 합은 다음과 같다.   
+
+- (3 * (120-100+1))   
+
+정리하면 자릿수가 n일때 n-1자리까의 자릿수의 합은 첫번째처럼 구하면 되고 n자리 수들의 자릿수의 합은 두번째처럼 구하면 된다.   
+
+이것을 코드로 나타내면 다음과 같다.   
+
+~~~java
+for(int i =1; i <len; i++)
+	sum +=(int) (9 * Math.pow(10, i-1)) * i;
+sum +=len*(Integer.parseInt(input)-Math.pow(10, len-1) +1);
+~~~   
+
+위 코드의 1,2번째 줄은 자릿수가 1인 수들부터 n-1인 수들까지의 자릿수의 합을 나타낸 것이고, 3번째 줄은 나머지
+n자리인 자릿수의 합을 나타냈다.   
+
+
+~~~java
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+
+public class Main {
+	
+	public static void main(String[] args) throws Exception {
+		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+		BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
+		String input;
+		
+		input =br.readLine();
+		bw.write(solve(input) +"\n");
+		bw.flush();
+		bw.close();
+		br.close();
+	}
+	static int solve(String input) {
+		int sum =0, len =0;
+		len =input.length();
+		
+		for(int i =1; i <len; i++)
+			sum +=(int) (9 * Math.pow(10, i-1)) * i;
+		sum +=len*(Integer.parseInt(input)-Math.pow(10, len-1) +1);
+		
+		return sum;
+	}
+}
+
+~~~
+
+
