@@ -1,0 +1,154 @@
+---
+layout: post
+title:  "셀레니움 연습해보기"
+date:   2020-07-29
+categories: PLAY
+permalink: /archivers/selenium1
+tags: [python, selenium]
+---
+
+## 셀레니움이란?
+
+이번 포스팅에는 파이썬을 이용해서 셀레니움을 간단히 이용해보는 예제를 다뤄보겠습니다.   
+
+일단 _셀레니움_이란 웹 애플리케이션 테스트를 자동화 하기 위한 도구라고 합니다.   
+
+파이썬뿐만 아니라 
+
+java, c# 등 여러가지 언어로도 이용이 가능하다고 합니다.   
+
+## 기본 설정
+
+셀레니움을 이용하기 위해 설치해야 하는것이 2가지 있습니다.   
+
+- 셀레니움
+- 웹 드라이버
+
+1. 셀레니움 설치는 아주 간단합니다.   
+pip install selenium 명령어를 통해 설치가 가능합니다.   
+
+2. 웹 드라이버 설치
+웹 테스트를 진행할 브라우저랑 그 브라우저에 맞는 드라이버가 필요합니다.   
+
+여기서는 크롬을 이용할것이기 때문에 크롬 드라이버를 설치 할것입니다.   
+
+우선 크롬의 버전을 확인해야 합니다.   
+
+크롬 버전을 확인하려면 <chrome://version>을 주소창에 입력해 주시면 됩니다.   
+
+그럼 브라우저의 제일 위에 버전이 나옴니다.   
+
+크롬 드라이버는 <https://chromedriver.chromium.org/downloads>에 들어가 주시면 됩니다.   
+
+웹사이트에 들어가면 다운로드 할 수 있는 드라이버들이 나오는데 자신의 버전에 맞는 드라이버를 눌러주면 됩니다.   
+
+그 다음 자신의 운영체제에 맞는 드라이버 집을 다운로드, 압축 해제 해주시면 됩니다.   
+
+## 페이지 접속하기
+
+파이썬에서 셀레니움을 이용할려면 가장 먼저 import를 해주고 드라이버를 설치한 위치를 알려줘야합니다.   
+
+~~~python
+from selenium import webdriver
+
+driver =webdriver.Chrome('C:\chromedriver_win32/chromedriver')
+~~~
+
+세번째 줄에 있는 webdriver.Chrome에는 웹 드라이버를 설치한 위치를 적어줘야 합니다.   
+
+저같은 경우 "C:\chromedriver_win32"에 설치했고 chromedriver 파일이 이 폴더안에 있어서 위와같이
+해줬습니다.   
+
+그 다음은 해당 주소로 연결하는 명령어입니다. 코드는 아래와 같습니다.   
+
+~~~python
+driver.implicitly_wait(3)
+driver.get('사이트 주소')
+~~~
+
+첫번째 줄에 있는 implicitly_wait()은 괄호안에 있는 시간만큼(sec) 기다리는 명령어입니다.   
+
+보통 페에지에 있는 자원들이 로드될 때까지 기다리는데 사용됩니다.    
+
+두번째 줄에 있는 get() 명령어는 괄호안에 접속하려는 사이트의 주소를 입력해주면 됩니다.   
+
+위 코드까지 마치고 실행을 해주시면 크롬 브라우저에 get() 안에 적어준 주소가 열립니다.   
+   
+
+## 웹 페이지 다뤄보기
+
+위 과정까지 마치면 브라우저에 원하는 페이지를 열 수 있습니다.   
+
+이번 포스팅에서는 xpath를 이용해서 원하는 요소를 클릭하는 메소드를 이용해 보겠습니다.    
+
+일단 가장먼저 웹 페이지의 요소에 접근하려면 원하는 페이지에서 ctrl+shift+i를 누르면 페이지의 요소를 볼 수 있습니다.   
+
+눌러보면 다음과 같이 페이지의 오른쪽에 페이지의 요소를 볼 수 있는 것이 뜹니다.   
+
+![c0729_1](./images/c0729_1.PNG)   
+
+그런다음 오른쪽 페이지 요소에 마우스 커서를 옮기다 보면 원하는 요소가 파란색으로 변하면서 어떤 것인지 알 수 있습니다.   
+
+저는 영화랭킹에 접근하고싶기 때문에 아래의 요소에 접근해 보겠습니다.   
+
+![c0729_2](./images/c0729_2.PNG)   
+
+위 이미지에서 파란색으로 되어있는 부분에 마우스 오른쪽 클릭, Copy, Copy XPath를 누르면 XPath값이 복사가 됩니다.   
+
+이 값을 이용하면 네이버 영화 페이지에서 영화랭킹에 접근할 수 있습니다.   
+
+코드는 아래와 같습니다.   
+
+~~~python
+driver.find_element_by_xpath('//*[@id="scrollbar"]/div[1]/div/div/ul/li[3]').click()
+~~~
+
+find_element_by_xpath 함수의 인자에 xpath값을 넣어주고 .click()을 이용하면 클릭이 됩니다.   
+   
+
+## 간단한 예제
+
+이번 예제에서는 프로그램을 실행하면 크롬에서 네이버영화 페이지에 접속하고 원하는 시간이 되면 영화랭킹 페이지에 들어가는
+예제를 살펴 보겠습니다.   
+
+일단 파이썬에서 시간을 다룰려면 time모듈을 import해야 합니다.   
+
+이번 예제에서는 time.gmtime(time.time()) 을 이용해서 시간을 측정합니다.   
+
+시간 측정은 다음과 같이 합니다.   
+
+~~~python
+time_now = time.gmtime(time.time())
+time_hour =time_now.tm_hour
+time_min =time_now.tm_min
+~~~
+
+gmtime으로 시간을 측정하면 UTC로 측정되기 때문에 한국시간으로 이용하려면 측정시간에 9를 더하고 24로 나눈 나머지를 써야합니다.   
+   
+
+아래 코드는 원하는 시와 분을 입력받고 원하는 시간이 될때까지 시, 분, 초를 출력하다가 시간이 되면 
+원하는 기능을 수행하고 "done"을 출력후 종료되는 프로그램 입니다.   
+
+~~~python
+from selenium import webdriver
+import time
+
+def doing_something():
+    driver.find_element_by_xpath('//*[@id="scrollbar"]/div[1]/div/div/ul/li[3]').click()
+
+want_hour =int(input('원하는 시를 입력해주세요: '))
+want_min =int(input('원하는 분을 입력해주세요: '))
+driver =webdriver.Chrome('C:\chromedriver_win32/chromedriver')
+driver.implicitly_wait(3)
+driver.get('https://movie.naver.com/')
+
+while True:
+    time_now = time.gmtime(time.time())
+    print('time now: ', (time_now.tm_hour+9)%24, '시 ', (time_now.tm_min), '분 ', time_now.tm_sec, '초')
+    if (time_now.tm_hour+9)%24 ==want_hour and time_now.tm_min ==want_min:
+        doing_something()
+        print('done')
+        break
+    time.sleep(1)
+~~~
+
