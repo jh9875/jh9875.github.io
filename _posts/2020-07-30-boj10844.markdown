@@ -1,0 +1,121 @@
+---
+layout: post
+title:  "[Baekjoon] 10844번: 쉬운 계단 수"
+date:   2020-07-30
+categories: PROBLEM_SOLVING
+permalink: /archivers/boj10844
+tags: [dp]
+---
+
+## 문제
+
+쉬운 계단 수란 45656과 같이 인접한 모든 자리수의 차이가 1이 나는 것이다.   
+
+문제의 입력으로 N(1 <= N <=100)이 주어질 때,   
+
+길이가 N자리인 수 중 쉬운 계단수의 갯수를 1000000000로 나눈 나머지를 구하는 문제이다.   
+
+문제 링크 : <https://www.acmicpc.net/problem/10844>   
+
+## 풀이
+
+처음엔 단순하게 생각해서 쉬운 계단수의 갯수를 구해봤다.   
+
+~~~java
+static int stairNum(int digit, int prevNum) {
+	if(digit ==N)
+		return 1;
+	int ret =0;
+	for(int next =0; next <10; next++)
+		if(Math.abs(prevNum -next) ==1)
+			ret +=stairNum(digit+1, next);
+	return ret;
+}
+~~~
+
+위 함수는 쉬운 계단 수를 판별하는 함수이다.   
+
+자릿수가 N자리인 수를 구해야하기 때문에 함수의 파라미터로 digit라는 현재 만들고 있는 수의
+자릿수를 나타내는 변수가 있고, 인접한 수와 차이가 1이 나야되기 때문에 prevNum이라는 변수를 이용했다.   
+
+만들고 있는 수의 자릿수가 N이 된다면 계단 수가 되므로 1을 반환한다.   
+
+그 밑은 계단 수의 갯수를 구하기 위해 ret이라는 변수를 이용했다.   
+
+이전 다음에 올 자릿수는 이전 자릿수와 1이 차이나야 되기 때문에 Math.abs(prevNum-next)가 1이 되는
+조건을 가진 수만 함수를 재귀적으로 호출 되도록 했다.   
+
+문제의 입력이 크지 않다면 위 함수로도 해결 가능하다.   
+
+하지만 입력이 최대 100이기 때문에 시간초과가 나올 것이다.   
+
+지금 상황에서 문제를 빠르게 해결하려면 cache를 이용해야된다.   
+
+문제를 자세히 살펴보면 중복 계산되는 부분이 아주 많다.   
+
+계단수를 만든다고 할때, 가장 앞자리 숫자부터 가장 뒷자리 숫자로 순차적으로 수를 넣어가면서 만든다고
+생각하면 특정 자리에 있는 어떤 수는 그 뒤에 나오는 수들이 모두 같다.   
+
+예를들어 특정 자리에 5가 온다고 하면 그 뒤에는 4나 6이 온다.   
+
+그 뒤에는 4가 올경우 3이나 5가 오고, 6이 올경우 5나 7이 온다.   
+
+즉 특정 자릿수에 특정 수가 올경우 그 뒤에올 수 있는 수들은 다 똑같다.   
+
+이를 cache에 저장해두고 사용하면 중복되는 계산을 없앨 수 있다.   
+
+그리고 추가로 주의해야될 사항은 계산할 때 데이터 범위이다.   
+
+보통 무의식적으로 int형을 사용하는데 수의 범위가 커서 중간 계산 과정에 int범위를 넘어가서 잘못된 값으로
+계산할 수 있다.   
+
+그러므로 long타입으로 계산해줬다.   
+
+~~~java
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.util.Arrays;
+
+public class Main {
+	
+	static final int MOD =1000000000;
+	static int N;
+	static long[][] cache;
+	
+	public static void main(String[] args) throws Exception {
+		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+		BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
+		
+		N =Integer.parseInt(br.readLine());
+		cache =new long[N+1][10];
+		for(int i =0; i <N+1; i++)
+			Arrays.fill(cache[i], -1);
+		
+		bw.write(solve() +"\n");
+		bw.flush();
+		bw.close();
+		br.close();
+	}
+	static long solve() {
+		long ret =0;
+		for(int i =1; i <10; i++)
+			ret +=stairNum(1, i) %MOD;
+		return ret %MOD;
+	}
+	static long stairNum(int digit, int prevNum) {
+		if(digit ==N)
+			return 1;
+		if(cache[digit][prevNum] !=-1)
+			return cache[digit][prevNum];
+		long ret =0;
+		for(int next =0; next <10; next++)
+			if(Math.abs(prevNum -next) ==1)
+				ret +=stairNum(digit+1, next) %MOD;
+		return cache[digit][prevNum] =ret %MOD;
+	}
+}
+
+~~~
+
