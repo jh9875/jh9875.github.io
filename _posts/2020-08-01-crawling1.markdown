@@ -11,7 +11,7 @@ tags: [python, crawling, BeautifulSoup]
 
 이번 포스팅에서는 파이썬과 BeautifulSoup를 이용해서 크롤링을 간단하게 다뤄보겠습니다.   
 
-*크롤링*이란 웹 페이지를 그대로 가져와서 데이터를 추출해 내는 행위다. 라고 나무위키에 써있습니다.   
+*크롤링* 이란 웹 페이지를 그대로 가져와서 데이터를 추출해 내는 행위다. 라고 나무위키에 써있습니다.   
 
 웹에서 특정 정보를 가져오고 이것을 이용하고 싶을때 크롤링 하는 방법을 알면 유용할 것 같습니다.   
 
@@ -108,7 +108,8 @@ keys =soup_obj.select('div.tit3')
 
 여기서 select안에 있는게 의미하는 것은 html 코드 안에서 div 태그 안에 있는 class가 tit3인 정보를 keys에 가져온겂니다.   
 
-(select를 이용하는 방법은 데이터공방님의 블로그를 참조했습니다. 주소 : <https://m.blog.naver.com/kiddwannabe/221177292446>)   
+(select를 이용하는 방법은 데이터공방님의 블로그를 참조했습니다.   
+주소 : <https://m.blog.naver.com/kiddwannabe/221177292446>)   
 
 print( type(keys) )을 출력해보면 "<class 'bs4.element.ResultSet'>"가 나옵니다.   
 
