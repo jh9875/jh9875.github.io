@@ -108,6 +108,8 @@ keys =soup_obj.select('div.tit3')
 
 여기서 select안에 있는게 의미하는 것은 html 코드 안에서 div 태그 안에 있는 class가 tit3인 정보를 keys에 가져온겂니다.   
 
+(이것에 관한 내용은 html과 관련이 있습니다. 페이지의 코드를 찾아본는 것은 해당 페이지에서 ctrl+shift+i 를 누르면 확인 가능합니다.)   
+
 (select를 이용하는 방법은 데이터공방님의 블로그를 참조했습니다.   
 주소 : <https://m.blog.naver.com/kiddwannabe/221177292446>)   
 
