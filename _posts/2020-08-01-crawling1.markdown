@@ -2,7 +2,7 @@
 layout: post
 title:  "크롤링 연습해보기"
 date:   2020-08-01
-categories: PLAY
+categories: WEB_CRAWLING
 permalink: /archivers/crawling1
 tags: [python, crawling, BeautifulSoup]
 ---

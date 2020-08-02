@@ -2,7 +2,7 @@
 layout: post
 title:  "셀레니움 연습해보기2"
 date:   2020-08-02
-categories: PLAY
+categories: WEB_CRAWLING
 permalink: /archivers/selenium2
 tags: [python, selenium, BeautifulSoup]
 ---
