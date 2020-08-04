@@ -1,0 +1,174 @@
+---
+layout: post
+title:  "[Baekjoon] 9019번: DSLR"
+date:   2020-08-04
+categories: PROBLEM_SOLVING
+permalink: /archivers/boj9019
+tags: [bfs]
+---
+
+## 문제
+
+명령어 D,S,L,R을 을 이용하는 계산기가 있다.   
+
+명령어의 기능은 다음과 같다.   
+
+- D: D 는 n을 두 배로 바꾼다. 결과 값이 9999 보다 큰 경우에는 10000 으로 나눈 나머지를 취한다. 그 결과 값(2n mod 10000)을 레지스터에 저장한다.   
+- S: S 는 n에서 1 을 뺀 결과 n-1을 레지스터에 저장한다. n이 0 이라면 9999 가 대신 레지스터에 저장된다.   
+- L: L 은 n의 각 자릿수를 왼편으로 회전시켜 그 결과를 레지스터에 저장한다. 이 연산이 끝나면 레지스터에 저장된 네 자릿수는 왼편부터 d2, d3, d4, d1이 된다.   
+- R: R 은 n의 각 자릿수를 오른편으로 회전시켜 그 결과를 레지스터에 저장한다. 이 연산이 끝나면 레지스터에 저장된 네 자릿수는 왼편부터 d4, d1, d2, d3이 된다.   
+
+문제의 입력으로 테스트 케이스의 수 T와 두 정수 A, B(0 <= A,B < 10000)가 주어진다.   
+
+A가 B가 되기위한 최소한의 연산을 출력해야 한다.   
+
+문제 링크 : <https://www.acmicpc.net/problem/9019>   
+
+## 풀이
+
+저는 처음 문제를 풀 때 각각의 연산을 하면 같은 수가 나오는 것을 고려하지 못해서 메모리초과가 나왔습니다.   
+
+이런 경우는 대부분 queue에 데이터가 많이 들어가서 생깁니다.   
+
+문제를 풀때 고려할 점은 연산으로 인해 같은 수가 나올 수 있습니다.   
+
+그럴 경우를 대비해 boolean배열로 이미 탐색한 수인지 확인하는 기능을 넣어주면 좋겠습니다.   
+
+그리고 되도록이면 연산을 할 때 String형으로 하지않고 int형으로 하는게 좋을 것 같습니다.   
+
+다른 분들이 풀이를 쓴 글을 보면 시간초과가 나왔다는 이야기가 있습니다.   
+
+문제를 해결하는 순서는 다음과 같습니다.   
+
+1. 현재 수에서 D, S, L, R연산을 한 수를 계산합니다.   
+2. 각 결과가 이미 나왔던 결과이면 그 수를 버리고, 아니면 queue에 넣습니다.   
+3. queue에 넣었던 결과가 원하는 수이면 연산을 반환합니다.   
+
+이 알고리즘을 구현한 함수는 다음과 같습니다.   
+
+~~~java
+static String bfs(int A, int B) {
+	boolean[] check =new boolean[10000];
+	Queue<Struct> queue =new LinkedList<>();
+	queue.add(new Struct(A, ""));
+	check[A] =true;
+		
+	while(!queue.isEmpty()) {
+		int num =queue.peek().num;
+		String operators =queue.peek().operators;
+		queue.poll();
+		
+		if(num ==B)
+			return operators;
+		for(char op : operator) {
+			int result =calcDSLR(num, op);
+			if(!check[result]) {
+				queue.add(new Struct(result, operators +op));
+				check[result] =true;
+			}
+		}
+	}
+	return "";
+}
+~~~
+
+그리고 DSLR은 다음과 같이 구현해 봤습니다.   
+
+~~~java
+static int calcDSLR(int num, char op) {
+	int ret =0;
+	if(op =='D') {
+		ret =num*2>9999 ?num*2%10000 : num*2;
+	}else if(op =='S') {
+		ret =num ==0? 9999: num-1;
+	}else if(op =='L') {
+		ret =(num%1000)*10 +num/1000;
+	}else if(op =='R') {
+		ret =(num%10)*1000 +num/10;
+	}
+	return ret;
+}
+~~~
+
+전체 코드   
+
+~~~java
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.util.LinkedList;
+import java.util.Queue;
+import java.util.StringTokenizer;
+
+public class Main {
+	
+	static class Struct {
+		int num;
+		String operators;
+		Struct(int num, String operators) {
+			this.num =num;
+			this.operators =operators;
+		}
+	}
+	
+	static char[] operator = {'D', 'S', 'L', 'R'};
+	
+	public static void main(String[] args) throws Exception {
+		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+		BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
+		StringTokenizer st;
+		int T, A, B;
+		
+		T =Integer.parseInt(br.readLine());
+		while(T-- >0) {
+			st =new StringTokenizer(br.readLine());
+			A =Integer.parseInt(st.nextToken());
+			B =Integer.parseInt(st.nextToken());
+			
+			bw.write(bfs(A, B) +"\n");
+		}
+		bw.flush();
+		bw.close();
+		br.close();
+	}
+	static String bfs(int A, int B) {
+		boolean[] check =new boolean[10000];
+		Queue<Struct> queue =new LinkedList<>();
+		queue.add(new Struct(A, ""));
+		check[A] =true;
+		
+		while(!queue.isEmpty()) {
+			int num =queue.peek().num;
+			String operators =queue.peek().operators;
+			queue.poll();
+			
+			if(num ==B)
+				return operators;
+			for(char op : operator) {
+				int result =calcDSLR(num, op);
+				if(!check[result]) {
+					queue.add(new Struct(result, operators +op));
+					check[result] =true;
+				}
+			}
+		}
+		return "";
+	}
+	static int calcDSLR(int num, char op) {
+		int ret =0;
+		if(op =='D') {
+			ret =num*2>9999 ?num*2%10000 : num*2;
+		}else if(op =='S') {
+			ret =num ==0? 9999: num-1;
+		}else if(op =='L') {
+			ret =(num%1000)*10 +num/1000;
+		}else if(op =='R') {
+			ret =(num%10)*1000 +num/10;
+		}
+		return ret;
+	}
+}
+
+~~~
+
