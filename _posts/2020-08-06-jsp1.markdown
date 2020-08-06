@@ -1,36 +1,36 @@
 ---
 layout: post
-title:  "[JSP]JSP 기본"
+title:  "[JSP] JSP 기본"
 date:   2020-08-06
 categories: WEB_FRONT_END
 permalink: /archivers/jsp1
 tags: [java, jsp]
 ---
 
-## jsp
+## JSP
 
-이번 포스팅에서는 jsp에 대해서 알아보겠습니다.   
+이번 포스팅에서는 JSP에 대해서 알아보겠습니다.   
 
 사실 jsp에 대해서 큰 관심을 가지고 있지 않았습니다.   
 
 웹 개발을 하려면 게시판 정도는 만들 수 있어야 한다는 생각이 있었고, 자바 언어를 이용해서 게시판을
-만드는 방법을 찾아보던 중 jsp에 대해 알게되었습니다.   
+만드는 방법을 찾아보던 중 JSP를 이용해 만들 수 있다는 것을 알게 되었습니다.   
 
-jsp에 대해 공부하던 중 알고보니 jsp는 요즘 거의 사용되지 않고 
+JSP에 대해 공부하던 중 알고보니 JSP는 요즘 거의 사용되지 않고 
 JavaScript 프레임워크를 이용해서 프론트엔드 개발을 한다는 것을 알게되었습니다.   
 
-그래도 크게 사용되진 않지만 기본적인 문법정도 알고 있으면 좋을 것 같아서 포스팅을 하게 되었습니다.   
+그래도 잘 사용되진 않지만 기본적인 문법정도 알고 있으면 좋을 것 같아서 포스팅을 하게 되었습니다.   
 
-(jsp공부는 각종 인터넷 자료와 YOUTUBE 동빈나님의 jsp 게시판 강의를 보면서 공부했습니다.)   
+(JSP공부는 각종 인터넷 자료와 YOUTUBE 동빈나님의 JSP 게시판 강의를 보면서 공부했습니다.)   
 
-동빈나님의 jsp강의 링크: <https://www.youtube.com/watch?v=wEIBDHfoMBg>   
+동빈나님의 JSP게시판 강의 링크: <https://www.youtube.com/watch?v=wEIBDHfoMBg>   
    
 
-## jsp란?
+## JSP란?
 
-**jsp (Java Server Page)** 란? html 코드내에 자바 코드를 삽입하여 웹 서버를 동적으로 생성하는 스크립트 언어입니다.   
+**JSP (Java Server Page)** 란? html 코드내에 자바 코드를 삽입하여 웹 서버를 동적으로 생성하는 스크립트 언어입니다.   
 
-jsp는 실행되면 웹 애플리케이션 서버 내부에서 java servelt으로 변환되고 servelt을 이용해서 웹 페이지를 동적으로 생성해서
+JSP는 실행되면 웹 애플리케이션 서버 내부에서 java servelt으로 변환되고 servelt을 이용해서 웹 페이지를 동적으로 생성해서
 
 사용자에게 웹 페이지와 데이터를 돌려주는 동작을 합니다.   
 
@@ -39,20 +39,25 @@ jsp는 실행되면 웹 애플리케이션 서버 내부에서 java servelt으�
 
 ## 간단한 문법 몇가지
 
-jsp에 사용되는 구성 요소는 여러가지가 있습니다.   
+JSP에 사용되는 구성 요소는 여러가지가 있습니다.   
 
 스크립트 요소, 지시어 등등 여러가지가 있지만 여기서는 몇가지만 살펴보겠습니다.   
 
 (이 외에 다른 요소들이 있는데 "버물리의 IT공부"님의 블로그와 "개발이 하고 싶어요"님의 블로그가 정리가 잘된것 같아서 참고했습니다.   
-"버물리의 IT공부" 주소: <https://javacpro.tistory.com/44>)   
+"버물리의 IT공부" 주소: <https://javacpro.tistory.com/44>   
 "개발이 하고 싶어요" 주소: <https://hyeonstorage.tistory.com/category/%3D%3D%20Web%20%20%3D%3D/JSP/Servlet/JDBC>
+)   
 
 (여기 나오는 사용 예시는 YOUTUBE 동빈나님의 강의를 보며 따라한 코드들입니다.   )
 
-- 스크립트릿(Scriptlet)
+- **스크립트릿(Scriptlet)**   
+
 	스크립트릿은 html코드안에 java코드를 넣을 때 사용합니다.   
+	
 	사용 형태: <% java code %>   
+	
 	사용 예시   
+	
 	~~~jsp
 	<!DOCTYPE html>
 	<html>
@@ -72,12 +77,17 @@ jsp에 사용되는 구성 요소는 여러가지가 있습니다.
 	%>
 	</body>
 	</html>
-	~~~
+	~~~   
 	
-- 표현식(Expression)
+	
+- **표현식(Expression)**   
+
 	표현식은 html에 java 값을 넣기 위해 사용됩니다.   
-	사용 형태: <%= ~~ %>
+	
+	사용 형태: <%= ~~ %>   
+	
 	사용 예시   
+	
 	~~~jsp
 	<tbody>
 		<tr>
@@ -87,13 +97,18 @@ jsp에 사용되는 구성 요소는 여러가지가 있습니다.
 		...
 	</tbody>
 	...
-	~~~
+	~~~   
 	위 코드는 jsp로 게시판을 표현하는데 사용한 일부 코드입니다.   
 	
-- 지시어(Directive)
+	
+- **지시어(Directive)**   
+
 	jsp의 설정 정보, 페이지에 다른 문서를 포함 시킬때 사용합니다.   
-	사용 형태: <%@ ~~ %>
-	사용 예시
+	
+	사용 형태: <%@ ~~ %>   
+	
+	사용 예시   
+	
 	~~~jsp
 	<%@ page language="java" contentType="text/html; charset=UTF-8"
 	pageEncoding="UTF-8"%>
@@ -101,29 +116,45 @@ jsp에 사용되는 구성 요소는 여러가지가 있습니다.
 	<%@ page import="java.io.PrintWriter"%>
 	
 	...
-	~~~
+	~~~   
+	
 	지시어에 들어가는 것들은 page, include, tablib 등이 있습니다.   
+	
 	위 코드에선 페이지에 대한 정보를 설정하거나, 다른 클래스를 import하는 기능으로 사용했습니다.   
 	
-- 액션 태그(Action Tag)
+	
+- **액션 태그(Action Tag)**   
+
 	jsp 페이지 내에서 동작을 제어할  때 사용합니다.   
-	사용 형태: <jsp: ~~ >
-	사용 예시
+	
+	사용 형태: <jsp: ~~ >   
+	
+	사용 예시   
+	
 	~~~jsp
 	<jsp:useBean id="user" class="user.User" scope="page" />
 	<jsp:setProperty name="user" property="userID" />
 	<jsp:setProperty name="user" property="userPassword" />
 	...
-	~~~
+	~~~   
+	
 	위 코드에서는 useBean과 setProperty를 사용했습니다.   
+	
 	useBean은 자바 클래스를 자바 빈즈로 사용할 때 씁니다.   
+	
 	자바 빈즈란 자바로 작성된 소프트웨어 컴포넌트를 말합니다.   
+	
 	setProperty는 자바 빈의 속성을 정할 때 사용합니다.   
+   
+   
+- **내장 객체**   
 
-- 내장 객체
 	jsp 페이지에서 제공하는 객체이며, 명시적으로 선언하지 않아도 사용할 수 있습니다.   
+	
 	request, resopnse, session등이 있습니다.   
-	사용 예시
+	
+	사용 예시   
+	
 	~~~jsp
 	if(result == 1){
 		session.setAttribute("userID", user.getUserID()); 
@@ -133,16 +164,19 @@ jsp에 사용되는 구성 요소는 여러가지가 있습니다.
 		script.println("</script>");
 	}
 	...
-	~~~
+	~~~   
+	
 	위 코드에선 session을 사용했습니다.   
+	
 	session은 사용자가 서버에 접속 했을때 세션 정보를 저장합니다.   
-	위 코드에선 
+	 
 	로그인을 했을 때 사용자 아이디를 이용해서 세션을 관리하는 코드입니다.   
 	
    
    
-이번 포스팅에서는 동빈나님의 jsp 게시판 강의에서 사용했던 몇가지 구성 요소에 대해서 알아보았습니다.   
+   
+이번 포스팅에서는 동빈나님의 JSP 게시판 강의에서 사용했던 몇가지 구성 요소에 대해서 알아보았습니다.   
 
-다음 포스팅에선 jsp 게시판 코드를 분석해보는 내용의 포스팅을 올리겠습니다.   
+다음 포스팅에선 JSP 게시판 코드를 분석해보는 내용의 포스팅을 올리겠습니다.   
    
    
