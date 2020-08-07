@@ -1,0 +1,697 @@
+---
+layout: post
+title:  "[JSP] JSP 게시판 연습"
+date:   2020-08-07
+categories: JSP
+permalink: /archivers/jsp2
+tags: [java, jsp]
+---
+
+## JSP 게시판 연습
+
+이번 포스팅에서는 JSP를 이용한 게시판 일부를 분석 해보겠습니다.   
+
+이번 포스팅을 하게된 이유는 그동안 게시판을 만들어보고 싶었지만 프로그램의 구조가 복잡해보이고, JSP 코드도 이해하기 힘들어서 시도하지 못하고 있다가
+YOUTUBE "동빈나"님의 강좌가 쉽게 설명되어 있어서 강좌를 보며 게시판은 어떠한 구조로 되어있는지 공부해보고자 합니다.   
+
+(포스팅에서는 jdk, mysql 등 설치 과정은 생략했습니다.)   
+<br/>
+
+* * *   
+참고로 이번 포스팅에서 이용한 코드는 YOUTUBE "동빈나"님의 "JSP 게시판 만들기 강좌"를 보며
+따라한 코드입니다.   
+(강좌 주소: <https://www.youtube.com/watch?v=wEIBDHfoMBg>)   
+
+그리고 동영상을 보며 일일히 코드를 치는게 힘들어서 동빈나님의 코드를 보며 따라하신 분의 블로그를 참고했습니다.   
+소스 코드는 "밑끝없로그"의 "땡글양"님의 블로그 포스팅에 있는 코드를 부분 수정해가며 사용했습니다.   
+(블로그 주소: <https://tbbrother.tistory.com/65>)   
+* * *   
+
+<br/>
+
+## JSP 게시판 프로젝트 구조
+
+일단 프로젝트의 구성은 다음과 같이 있습니다.   
+
+![2020_08_07_1](../images/200807/2020_08_07_1.PNG)   
+
+BBS프로젝트 안에 여러가지 디렉토리가 있습니다.   
+
+그 안에 있는 디렉토리의 목록은 다음과 같습니다.(사용자마다 다를 수 있습니다.)   
+
+- src   
+- JRE System Library   
+- Apache Tomcat v9.0   
+- Web App Libraries   
+- WebContent   
+
+이 중 src와 JRE System Library는 자바 프로젝트를 생성했을때 생기는 디렉토리입니다.   
+
+그리고 나머지는 웹 프로젝트를 할 때 필요한 디렉토리 입니다.   
+
+이 중 자주 이용하게될 디렉토리는 src와 WebContent입니다.   
+
+각각의 역할은 다음과 같습니다.   
+
+- src   
+
+	자바파일이 저장되는 디렉토리입니다.   
+	
+	주로 들어가는 것들은 *자바 빈* 과 *DAO* 입니다.   
+	
+	*자바 빈* 은 데이터 클래스로 데이터의 구조를 나타냅니다. 속성과 setter, getter로 이루어진 클래스입니다.   
+	
+	*DAO(data access object)* 는 데이터베이스에 정보를 저장하고 불러오기 위해 사용합니다.   
+
+- WebContent   
+	
+	웹 파일이 들어가는 디렉토리입니다.   
+	
+	css, image, js파일들이 들어가며, 여기서는 jsp파일이 주로 들어갑니다.   
+
+<br/>
+
+## 로그인 하는 과정
+
+게시판이 어떻게 동작하는지 이해하기 위해서 게시판의 일부분인 로그인하는 과정을 알아보겠습니다.   
+
+어떤 웹 페이지에서 로그인을 하기 위해선 다음과 같은 과정이 필요합니다.   
+
+- 로그인 페이지에 접속한다.   
+- 아이디, 비밀번호를 누르고 로그인 버튼을 누른다.   
+- 웹 페이지는 로그인 정보를 서버로 보냅니다.   
+- 서버에서는 사용자의 아이디와 비밀번호를 분석하고 맞다면 로그인 이후의 화면을 보여주고, 아니면 정보가 틀렸다는 화면을 띄웁니다.   
+
+이러한 기능들을 구현하기 위해서 login.jsp, loginAction.jsp, User.java, UserDAO.java가 필요합니다.   
+
+각각의 열할은 다음과 같습니다.   
+
+- login.jsp: 로그인 화면을 띄우는 역할을 합니다. 사용자의 아이디와 비밀번호를 입력받고 버튼을 누르면 서버로 데이터를 보냅니다.   
+- loginAction.jsp: login.jsp에서 로그인을 시도하면 사용자의 아이디와 비밀번호를 분석하고 맞는지, 아닌지 판단하고 적절한 대응을 합니다.   
+- User.java: 한명의 회원정보를 담기위한 자바 빈즈로 사용됩니다.   
+- UserDAO.java: 데이터베이스에서 회원정보를 접근하거나, 조작하기 위해 사용되는 역할입니다.   
+
+이제 각각의 코드를 보겠습니다.   
+
+<br/>
+
+## jsp, java 코드 분석
+
+**1 login.jsp**   
+
+~~~jsp
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+	pageEncoding="UTF-8"%>
+	
+<!DOCTYPE html>
+
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width" initial-scale="1">
+<link rel="stylesheet" href="css/bootstrap.min.css">
+<title>JSP 게시판 웹 사이트</title>
+</head>
+
+<body>
+
+	<!-- 네비게이션  -->
+	<nav class="navbar navbar-default">
+		<div class="navbar-header">
+			<button type="button" class="navbar-toggle collapsed"
+				data-toggle="collapse" data-target="#bs-example-navbar-collapse-1"
+				aria-expaned="false">
+				<span class="icon-bar"></span> <span class="icon-bar"></span> <span
+					class="icon-bar"></span>
+			</button>
+			<a class="navbar-brand" href="main.jsp">JSP 게시판</a>
+		</div>
+		<div class="collapse navbar-collapse"
+			id="#bs-example-navbar-collapse-1">
+			<ul class="nav navbar-nav">
+				<li><a href="main.jsp">메인</a></li>
+				<li><a href="bbs.jsp">게시판</a></li>
+			</ul>
+			<ul class="nav navbar-nav navbar-right">
+				<li class="dropdown"><a href="#" class="dropdown-toggle"
+					data-toggle="dropdown" role="button" aria-haspopup="true"
+					aria-expanded="false">접속하기<span class="caret"></span></a>
+					<ul class="dropdown-menu">
+						<li class="active"><a href="login.jsp">로그인</a></li>
+						<li><a href="join.jsp">회원가입</a></li>
+					</ul></li>
+			</ul>
+		</div>
+	</nav>
+	
+	<!-- 로긴폼 -->
+	<div class="container">
+		<div class="col-lg-4"></div>
+		<div class="col-lg-4">
+			<!-- 점보트론 -->
+			<div class="jumbotron" style="padding-top: 20px;">
+				<!-- 로그인 정보를 숨기면서 전송post -->
+				<form method="post" action="loginAction.jsp">
+					<h3 style="text-align: center;">로그인화면</h3>
+					<div class="form-group">
+						<input type="text" class="form-control" placeholder="아이디"
+							name="userID" maxlength="20">
+					</div>
+					<div class="form-group">
+						<input type="password" class="form-control" placeholder="비밀번호"
+							name="userPassword" maxlength="20">
+					</div>
+					<input type="submit" class="btn btn-primary form-control"
+						value="로그인">
+				</form>
+			</div>
+		</div>
+	</div>
+	
+	<!-- 애니매이션 담당 JQUERY -->
+	<script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+	<!-- 부트스트랩 JS  -->
+	<script src="js/bootstrap.js"></script>
+</body>
+</html>
+~~~   
+
+코드의 대부분이 화면을 보여주기 위한 코드입니다.   
+
+일단 파일의 제일 위에 jsp의 지시어가 있습니다.   
+
+~~~jsp
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+	pageEncoding="UTF-8"%>
+~~~   
+
+이렇게 <%@ ~~ %>에 감싸져 있는 코드인데 이것은 지시어입니다.   
+
+지시어는 jsp의 설정 정보를 정하거나, 페이지에 다른 문서를 포함시킬 때 사용합니다.   
+
+지시어 안에 들어갈 수 있는 지시자는 3가지가 있습니다.   
+
+- page, include, taglib   
+
+이 중 page는 페이지의 속성을 정의할 때 사용합니다.   
+
+위 코드는 jsp페이지에서 사용하는 언어는 java로 하고(language="java")   
+
+jsp가 생성할 문서의 타입은 html로, 페이지의 인코딩 방식은 UTF-8로 하고(contentType="text/html; charset=UTF-8")   
+
+jsp페이지에 기록된 소스코드의 인코딩 방식을 UTF-8로(pageEncoding="UTF-8") 한다는 의미입니다.   
+<br/>
+
+그 밑으로 "<!DOCTYPE html>"가 나오고 html코드들입니다.   
+
+이 파일을 실행시키면 다음과 같은화면이 나옵니다.   
+
+![2020_08_07_2](../images/200807/2020_08_07_2.PNG)   
+
+위 코드에서 <nav class="navbar navbar-default"> ... </nav>로 감싸져 있는 부분이 페이지의 위에 있는 네비게이션 부분입니다.   
+
+그리고 밑에 <div class="container"> ... </div>로 감싸져 있는 부분이 로그인 박스 부분입니다.   
+<br/>
+
+그리고 살펴볼 부분은 다음 코드입니다.   
+
+~~~jsp
+<form method="post" action="loginAction.jsp">
+	<h3 style="text-align: center;">로그인화면</h3>
+	<!-- 아이디 입력 -->
+	<div class="form-group">
+		<input type="text" class="form-control" placeholder="아이디"
+			name="userID" maxlength="20">
+	</div>
+	<!-- 비밀번호 입력 -->
+	<div class="form-group">
+		<input type="password" class="form-control" placeholder="비밀번호"
+			name="userPassword" maxlength="20">
+	</div>
+	<!-- 로그인 버튼 -->
+	<input type="submit" class="btn btn-primary form-control"
+		value="로그인">
+		
+</form>
+~~~
+
+위 코드에서 첫줄에 <form method="post" action="loginAction.jsp"> ... </form>으로 묶여있는 부분이 있습니다.   
+
+form태그는 데이터를 서버로 보낼 때 사용하는 태그인데 여기서는 아이디와 비밀번호를 loginAction.jsp로 보내고 있습니다.   
+
+그리고 위 코드에서 아이디와 비밀번호를 입력받는 곳에 name="userID"와 name="userPassword"가 있습니다.   
+
+이 이름들은 서버에서 이 이름이 사용됩니다.   
+
+<br/>
+* * *
+<br/>
+
+**2 loginAction.jsp**   
+
+~~~jsp
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+	pageEncoding="UTF-8"%>
+<%@ page import="user.UserDAO"%>
+<!-- userdao의 클래스 가져옴 -->
+<%@ page import="java.io.PrintWriter"%>
+<!-- 자바 클래스 사용 -->
+<% request.setCharacterEncoding("UTF-8"); %>
+
+<!-- 한명의 회원정보를 담는 user클래스를 자바 빈즈로 사용 / scope:페이지 현재의 페이지에서만 사용-->
+<jsp:useBean id="user" class="user.User" scope="page" />
+<jsp:setProperty name="user" property="userID" />
+<jsp:setProperty name="user" property="userPassword" />
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>jsp 게시판 웹사이트</title>
+</head>
+<body>
+	<%
+		String userID =null;
+		if(session.getAttribute("userID") !=null) {
+			userID =(String) session.getAttribute("userID");
+		}
+		if(userID !=null) {
+			PrintWriter script = response.getWriter();
+			script.println("<script>");
+			script.println("alert('이미 로그인이 되어있습니다.')");
+			script.println("<location.href = 'main.jsp'");
+			script.println("</script>");
+		}
+		
+		if (user.getUserID() == null || user.getUserPassword() == null) {
+			PrintWriter script = response.getWriter();
+			script.println("<script>");
+			script.println("alert('입력이 안 된 사항이 있습니다.')");
+			script.println("history.back()");
+			script.println("</script>");
+		}else {
+			UserDAO userDAO = new UserDAO(); //인스턴스생성
+			int result = userDAO.login(user.getUserID(), user.getUserPassword());
+			//로그인 성공
+			if(result == 1){
+				session.setAttribute("userID", user.getUserID()); 
+				PrintWriter script = response.getWriter();
+				script.println("<script>");
+				script.println("location.href = 'main.jsp'");
+				script.println("</script>");
+			}
+			//로그인 실패
+			else if(result == 0){
+				PrintWriter script = response.getWriter();
+				script.println("<script>");
+				script.println("alert('비밀번호가 틀립니다.')");
+				script.println("history.back()");
+				script.println("</script>");
+			}
+			//아이디 없음
+			else if(result == -1){
+			PrintWriter script = response.getWriter();
+			script.println("<script>");
+			script.println("alert('존재하지 않는 아이디 입니다.')");
+			script.println("history.back()");
+			script.println("</script>");
+			}
+			//DB오류
+			else if(result == -2){
+			PrintWriter script = response.getWriter();
+			script.println("<script>");
+			script.println("alert('DB오류가 발생했습니다.')");
+			script.println("history.back()");
+			script.println("</script>");
+			}			
+		}
+	%>
+</body>
+</body>
+</html>
+~~~   
+
+loginAction.jsp에서도 지시어(<@ .. >)가 있습니다.   
+
+제일 첫줄은 login.jsp와 마찬가지로 페이지 설정 정보를 알려줍니다.   
+
+그 밑으로는 "<%@ page import="user.UserDAO"%>"가 나오는데   
+
+이것은 데이터베이스에 접근하기 위한 user패키지에 있는 UserDAO를 사용하기 위해 import 하는 것입니다.   
+
+그리고 java.io.PrintWriter는 자바스크립트 문장을 작성할 때 사용합니다.   
+<br/>
+
+그 밑에 나오는 "<% request.setCharacterEncoding("UTF-8"); %>"는 페이지에 건너오는 데이터를 UTF-8 받을 수 있도록 하는 명령어입니다.   
+
+여기서 <% .. %> 는 스크립트릿으로 자바코드를 넣을 때 사용합니다.   
+
+스크립트릿 안에 나오는 request는 jsp 내장객체 입니다. 명시적으로 선언하지 않고도 사용할 수 있는 객체이죠.   
+
+request는 웹 브라우저(클라이언트)에서 jsp(서버)로 보내는 요청과 관련된 역할을 합니다.   
+<br/>
+
+그 밑에 나오는 <jsp: ..>형태의 태그는 액션태그입니다.   
+
+~~~jsp
+<jsp:useBean id="user" class="user.User" scope="page" />
+<jsp:setProperty name="user" property="userID" />
+<jsp:setProperty name="user" property="userPassword" />
+~~~   
+
+제일 첫줄에 있는 useBean은 자바 빈을 사용하기 위해 사용하는 액션태그입니다.   
+
+코드를 해석해보자면 빈 이름이 user인 것이고, 자바 빈 클래스는 user패키지의 User클래스이고, 사용 범위는 이 페이지 내에서 쓰인다는 뜻입니다.   
+
+User클래스는 밑에서 나오겠지만 회원의 정보를 담고있는 클래스입니다.   
+
+즉 loginAction.jsp 페이지 내에서 회원정보를 담고있는 user 자바 빈을 사용하겠다고 알려주는 것입니다.   
+
+그 밑에 setProperty는 자바 빈의 속성값을 설정합니다.   
+
+위 코드에선 자바 빈의 이름이 user인 자바 빈에 속성값이 userId, userPassword인 값을 설정하는 것입니다.   
+
+아까 login.jsp에서 form태그 안에 아이디와 비밀번호를 입력했었죠?   
+
+그때 사용한 name이 userID와 userPassword였습니다.   
+
+login.jsp에서 form으로 보내온 정보를 loginAction.jsp의 자바 빈에서 속성을 설정하는 코드입니다.   
+<br/>
+
+그 밑에는 html head 부분이 나오고 body 부분에 스크립트릿이 나옵니다.   
+
+스크립트릿에 자바코드를 삽입해서 로그인 정보를 처리하는 부분이죠.   
+
+일단 이부분 부터 보겠습니다.   
+
+~~~jsp
+if (user.getUserID() == null || user.getUserPassword() == null) {
+	PrintWriter script = response.getWriter();
+	script.println("<script>");
+	script.println("alert('입력이 안 된 사항이 있습니다.')");
+	script.println("history.back()");
+	script.println("</script>");
+}else {
+	UserDAO userDAO = new UserDAO(); //인스턴스생성
+	int result = userDAO.login(user.getUserID(), user.getUserPassword());
+	//로그인 성공
+	if(result == 1){
+		session.setAttribute("userID", user.getUserID()); 
+		PrintWriter script = response.getWriter();
+		script.println("<script>");
+		script.println("location.href = 'main.jsp'");
+		script.println("</script>");
+	}
+	//로그인 실패
+	else if(result == 0){
+		PrintWriter script = response.getWriter();
+		script.println("<script>");
+		script.println("alert('비밀번호가 틀립니다.')");
+		script.println("history.back()");
+		script.println("</script>");
+	}
+	//아이디 없음
+	else if(result == -1){
+		...
+	}
+	//DB오류
+	else if(result == -2){
+		...
+	}			
+}
+~~~
+
+위 코드에서 제일 위에있는 부분은 로그인 정보가 입력이 안됐을 경우입니다.   
+
+if (user.getUserID() == null || user.getUserPassword() == null)   
+
+즉 login.jsp에서 아이디나 비밀번호를 안누르고 로그인 버튼을 누를 경우 자바 빈의 userID 값이나, userPassword값이 null값이 됩니다.   
+
+그런 경우에 적절한 처리를 하기 위해서 자바스크립트문장을 삽입해야 합니다.   
+
+"PrintWriter script = response.getWriter();"에서 response는 jsp의 내장객체입니다.   
+
+아까 request와 반대로 서버에서 클라이언트로 응답과 관련된 메세지를 전할 때 사용되는 객체죠.   
+
+여기서는 login.jsp에서 입력이 안된 경우가 있을 경우 "입력이 안된 사항이 있습니다."를 경고창으로 띄우고,   
+
+loginAction.jsp에서 login.jsp페이지로 되돌아 가게 하는 코드입니다.(history.back())   
+<br/>
+
+그 밑으로는(else 부분) 로그인 값이 모두 입력됐을 경우 값을 입력된 값에 따라서 처리하는 부분입니다.   
+
+제일 먼저 데이터베이스에 접근하기 위해서 객체를 생성해야죠.(UserDAO userDAO = new UserDAO();)   
+
+그 다음 로그인 결과 값을 받아와야합니다.
+(int result = userDAO.login(user.getUserID(), user.getUserPassword());)   
+
+여기서 userDAO.login은 UserDAO클래스에서 구현한 함수입니다. 이건 밑에서 보죠.   
+
+그리고 결과가 성공이면 (여기서는 result가 1일때 성공이라고 했습니다.)   
+
+스크립트 파일에 "location.href = 'main.jsp"를 삽입해서 main.jsp로 이동하게 합니다.   
+
+그리고 나머지 경우는 모두 오류가 있는 경우이므로 경고창을 띄우고(alert), login.jsp로 되돌아 가야됩니다.(history.back())   
+<br/>
+
+그리고 그 위에 다음과 같은 코드가 있습니다.   
+
+~~~jsp
+String userID =null;
+if(session.getAttribute("userID") !=null) {
+	userID =(String) session.getAttribute("userID");
+}
+if(userID !=null) {
+	PrintWriter script = response.getWriter();
+	script.println("<script>");
+	script.println("alert('이미 로그인이 되어있습니다.')");
+	script.println("<location.href = 'main.jsp'");
+	script.println("</script>");
+}
+~~~
+
+위 코드에서 세션과 관련된 코드입니다.   
+
+세션이란 사용자와 서버간의 연결을 의미합니다.   
+
+세션을 관리하기 위해 사용되는 jsp내장 객체는 session입니다.   
+
+session.getAttribute(String name)는 세션 속성명이 name인 속성의 값을 object타입으로 반환합니다.   
+
+여기서는 String에 저장하기 위해 형변환을 했죠.   
+
+그리고 이게 null이 아닌경우 이미 접속되어있는 경우이기 때문에 "이미 로그인 되어있습니다." 경고창을 띄우고   
+
+main.jsp로 이동하도록 처리했습니다.   
+
+즉, 이미 접속되어있는 경우 경고창 띄우고 main페이지로 이동시키고   
+
+아니면 UserDAO를 이용해서 데이터베이스에 이 회원 정보가 있는지 확인 후 적절한 처리를 하는 코드입니다.   
+
+<br/>
+* * *
+<br/>
+
+**3 User.java**   
+
+~~~jsp
+package user;
+
+public class User {
+	private String userID;
+	private String userPassword;
+	private String userName;
+	private String userGender;
+	private String userEmail;
+	
+	public String getUserID() {
+		return userID;
+	}
+	public void setUserID(String userID) {
+		this.userID = userID;
+	}
+	public String getUserPassword() {
+		return userPassword;
+	}
+	public void setUserPassword(String userPassword) {
+		this.userPassword = userPassword;
+	}
+	public String getUserName() {
+		return userName;
+	}
+	public void setUserName(String userName) {
+		this.userName = userName;
+	}
+	public String getUserGender() {
+		return userGender;
+	}
+	public void setUserGender(String userGender) {
+		this.userGender = userGender;
+	}
+	public String getUserEmail() {
+		return userEmail;
+	}
+	public void setUserEmail(String userEmail) {
+		this.userEmail = userEmail;
+	}
+}
+~~~   
+
+이 코드는 데이터를 저장하기 위한 자바 빈입니다.   
+
+회원 정보를 구성하고 있는 요소의 항목들이 있고, 각각의 요소에 접근할 수 있는 setter, getter메서드들이 있습니다.   
+
+<br/>
+* * *
+<br/>
+
+**4 UserDAO.java**   
+
+~~~jsp
+package user;
+
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+
+public class UserDAO {
+	private Connection conn;
+	private PreparedStatement pstmt;
+	private ResultSet rs;
+
+	public UserDAO() {
+		try {
+			String dbURL = "jdbc:mysql://localhost:3306/BBS"; // localhost:3306 포트는 컴퓨터설치된 mysql주소
+			String dbID = "";
+			String dbPassword = "";
+			Class.forName("com.mysql.jdbc.Driver");
+			conn = DriverManager.getConnection(dbURL, dbID, dbPassword);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	public int login(String userID, String userPassword) {
+		String SQL = "SELECT userPassword FROM user WHERE userID = ?";
+		try {
+			pstmt = conn.prepareStatement(SQL);
+			pstmt.setString(1, userID);
+			rs = pstmt.executeQuery();
+			if (rs.next()) {
+				if (rs.getString(1).equals(userPassword)) {
+					return 1; // 로긴 성공
+				} else
+					return 0; // 비밀번호 불일치
+			}
+			return -1; // 아이디가 없음 오류
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return -2; // 데이터베이스 오류를 의미
+	}
+
+	public int join(User user) {
+		String SQL = "INSERT INTO USER VALUES (?,?,?,?,?)";
+		try {
+			pstmt = conn.prepareStatement(SQL);
+			pstmt.setString(1, user.getUserID());
+			pstmt.setString(2, user.getUserPassword());
+			pstmt.setString(3, user.getUserName());
+			pstmt.setString(4, user.getUserGender());
+			pstmt.setString(5, user.getUserEmail());
+			return pstmt.executeUpdate();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return -1; // DB 오류
+	}
+}
+~~~   
+
+위 코드는 User클래스를 이용해서 데이터베이스에 접근하기 위한 클래스입니다.   
+
+가장 위에있는 클래스의 변수들은 다음과 같습니다.   
+
+- private Connection conn;   
+- private PreparedStatement pstmt;   
+- private ResultSet rs;   
+
+일단 Connection와 PreparedStatement는 SQL문장을 실행시키기 위한 객체입니다.   
+
+ResultSet은 SQL 결과를 저장하기 위한 객체입니다.   
+
+생성자에 있는 코드들은 데이터베이스 접속에 필요한 정보들을 설정하는 코드들입니다.   
+
+DriverManager클래스를 통해, dbID, dbPassword, dbURL등을 입력해서 접속하고 있죠.   
+<br/>
+
+그 다음 볼 부분은 login 함수입니다.   
+
+~~~jsp
+public int login(String userID, String userPassword) {
+	String SQL = "SELECT userPassword FROM user WHERE userID = ?";
+	try {
+		pstmt = conn.prepareStatement(SQL);
+		pstmt.setString(1, userID);
+		rs = pstmt.executeQuery();
+		if (rs.next()) {
+			if (rs.getString(1).equals(userPassword)) {
+				return 1; // 로긴 성공
+			} else
+				return 0; // 비밀번호 불일치
+		}
+		return -1; // 아이디가 없음 오류
+	} catch (Exception e) {
+		e.printStackTrace();
+	}
+	return -2; // 데이터베이스 오류를 의미
+}
+~~~   
+
+함수의 인자로 userID와 userPassword가 있습니다.   
+
+아까 loginAction에서 UserDAO클래스의 login함수를 쓸때 두 변수를 넘겨줬죠.   
+
+그리고 제일 위엤는 String문장은 SQL 문장입니다.   
+
+데이터베이스에서 실행할 SQL문장이죠.   
+
+그 의미는 데이터베이스의 user테이블에서 userID가 ?인 정보의 userPassword를 저장하는 부분입니다.   
+
+그 밑에보시면 pstmt를 이용해서 setString(1, userID)를 통해 ?값을 정해주고 있습니다.   
+
+즉 loginAction.jsp에서 넘겨온 userID값에 맞는 userPassword를 찾고있는 것입니다.   
+
+그리고 다음 코드를 보시면 if(rs.next())가 있는데 이건 결과가 있는지를 확인하는 겁니다.   
+
+결과가 없으면 -1을 반환해서 없는 아이디라고 처리해주고, 결과가 있으면 비밀번호가 맞는값인지 아닌지를 판단해야합니다.   
+
+"if (rs.getString(1).equals(userPassword))"를 통해 확인하고 있습니다.   
+
+rs(resultSet: 결과값).getString을 통해 데이터베이스에 있는 비밀번호와 login.jsp로 통해 보내진 사용자 입력 비밀번호가 맞는지 확인하는 겁니다.   
+
+각각의 결과에 따라서 값을 반환해서 처리하고 있습니다.   
+
+<br/>
+* * *
+<br/>   
+
+## 정리
+
+마지막으로 게시판에서 로그인을 하면 프로그램 내에서 일어나는 동작들을 보겠습니다.   
+
+1. 로그인 페이지(login.jsp)에서 데이터를 입력후 로그인 버튼을 누른다.   
+2. 로그인 처리를 하는 페이지(loginAction.jsp)에서 입력값에 따라 처리를 적절한 처리를 한다.   
+3. 로그인 값이 맞는지는 UserDAO를 이용해 데이터베이스에 저장되어있는 회원정보와 비교해서 적절한 처리를 해준다.   
+
+즉 로그인 요청 -> 웹 서버(login.jsp) -> 웹 애플리케이션 서버(loginAction.jsp) -> 데이터베이스 접근(UserDAO.java)
+
+짧게 요약하면 저런 과정을 거치는 것 같습니다.   
+
+게시판 프로그램의 다른 페이지들도 이와같은 동작을 한다고 생각하시면 될것 같습니다.   
+
+화면에 나타날 페이지를 구현하고, 그에 맞는 동작을 하는 페이지를 구현하는 방식으로 하면 됩니다.   
+
+만약 회원정보같은 데이터베이스를 필요로 하는 구조가 필요하면 자바 빈 클래스와 DAO클래스를 구현하면 됩니다.   
+

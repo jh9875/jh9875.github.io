@@ -2,7 +2,7 @@
 layout: post
 title:  "[JSP] JSP 기본"
 date:   2020-08-06
-categories: WEB_FRONT_END
+categories: JSP
 permalink: /archivers/jsp1
 tags: [java, jsp]
 ---
@@ -105,6 +105,8 @@ JSP에 사용되는 구성 요소는 여러가지가 있습니다.
 	~~~   
 	위 코드는 jsp로 게시판을 표현하는데 사용한 일부 코드입니다.   
 	
+	표현식을 이용해서 bbs.getBbsTitle() 값을 html코드안에서 사용하고 있습니다.   
+	
 * * *   
 <br/><br/>
 
@@ -190,6 +192,6 @@ JSP에 사용되는 구성 요소는 여러가지가 있습니다.
 
 이번 포스팅에서는 동빈나님의 JSP 게시판 강의에서 사용했던 몇가지 구성 요소에 대해서 알아보았습니다.   
 
-다음 포스팅에선 JSP 게시판 코드를 분석해보는 내용의 포스팅을 올리겠습니다.   
+다음 포스팅에선 JSP 게시판 코드의 일부를 분석해보는 내용의 포스팅을 올리겠습니다.   
    
    
