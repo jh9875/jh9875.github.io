@@ -16,8 +16,8 @@ YOUTUBE "동빈나"님의 강좌가 쉽게 설명되어 있어서 강좌를 보�
 
 (포스팅에서는 jdk, mysql 등 설치 과정은 생략했습니다.)   
 <br/>
-
-* * *   
+<br/>
+ 
 참고로 이번 포스팅에서 이용한 코드는 YOUTUBE "동빈나"님의 "JSP 게시판 만들기 강좌"를 보며
 따라한 코드입니다.   
 (강좌 주소: <https://www.youtube.com/watch?v=wEIBDHfoMBg>)   
@@ -25,8 +25,7 @@ YOUTUBE "동빈나"님의 강좌가 쉽게 설명되어 있어서 강좌를 보�
 그리고 동영상을 보며 일일히 코드를 치는게 힘들어서 동빈나님의 코드를 보며 따라하신 분의 블로그를 참고했습니다.   
 소스 코드는 "밑끝없로그"의 "땡글양"님의 블로그 포스팅에 있는 코드를 부분 수정해가며 사용했습니다.   
 (블로그 주소: <https://tbbrother.tistory.com/65>)   
-* * *   
-
+<br/>
 <br/>
 
 ## JSP 게시판 프로젝트 구조
@@ -174,7 +173,8 @@ BBS프로젝트 안에 여러가지 디렉토리가 있습니다.
 	<script src="js/bootstrap.js"></script>
 </body>
 </html>
-~~~   
+~~~  
+<br/> 
 
 코드의 대부분이 화면을 보여주기 위한 코드입니다.   
 
@@ -208,7 +208,7 @@ jsp페이지에 기록된 소스코드의 인코딩 방식을 UTF-8로(pageEncod
 
 ![2020_08_07_2](../images/200807/2020_08_07_2.PNG)   
 
-위 코드에서 <nav class="navbar navbar-default"> ... </nav>로 감싸져 있는 부분이 페이지의 위에 있는 네비게이션 부분입니다.   
+코드에서 <nav class="navbar navbar-default"> ... </nav>로 감싸져 있는 부분이 페이지의 위에 있는 네비게이션 부분입니다.   
 
 그리고 밑에 <div class="container"> ... </div>로 감싸져 있는 부분이 로그인 박스 부분입니다.   
 <br/>
@@ -330,6 +330,7 @@ form태그는 데이터를 서버로 보낼 때 사용하는 태그인데 여기
 </body>
 </html>
 ~~~   
+<br/>
 
 loginAction.jsp에서도 지시어(<@ .. >)가 있습니다.   
 
@@ -423,7 +424,7 @@ if (user.getUserID() == null || user.getUserPassword() == null) {
 
 위 코드에서 제일 위에있는 부분은 로그인 정보가 입력이 안됐을 경우입니다.   
 
-if (user.getUserID() == null || user.getUserPassword() == null)   
+"if(user.getUserID() == null or user.getUserPassword() == null)"   
 
 즉 login.jsp에서 아이디나 비밀번호를 안누르고 로그인 버튼을 누를 경우 자바 빈의 userID 값이나, userPassword값이 null값이 됩니다.   
 
@@ -674,7 +675,6 @@ rs(resultSet: 결과값).getString을 통해 데이터베이스에 있는 비밀
 각각의 결과에 따라서 값을 반환해서 처리하고 있습니다.   
 
 <br/>
-* * *
 <br/>   
 
 ## 정리
