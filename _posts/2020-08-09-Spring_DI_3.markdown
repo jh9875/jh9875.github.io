@@ -1,0 +1,274 @@
+---
+layout: post
+title:  "[Spring] DI(Dependency Injection) (3)"
+date:   2020-08-09
+categories: SPRING
+permalink: /archivers/Spring_DI_3
+tags: [spring, java, DI]
+---
+
+## 머릿말
+
+지난 포스팅에서는 스프링의 DI에대해서 알아보았습니다.   
+(이전 포스팅: <https://jh9875.github.io/archivers/Spring_DI_2>)   
+
+이번에는 스프링에서 의존 자동 주입에 대해 알아보겠습니다.   
+
+(이번 포스팅에서 사용하는 코드는 최범균님의 "초보 웹 개발자를 위한 스프링5 프로그래밍 입문" 코드를 활용했습니다.)   
+<br/>
+<br/>
+
+## 의존 자동 주입
+
+이전 포스팅에서는 의존 주입을 할때 다음과 같이 했었습니다.
+
+~~~java
+public class AppCtx {
+
+	@Bean
+	public MemberDao memberDao() {
+		return new MemberDao();
+	}
+	
+	@Bean
+	public MemberRegisterService memberRegSvc() {
+		return new MemberRegisterService(memberDao());
+	}
+	
+	@Bean
+	public ChangePasswordService changePwdSvc() {
+		ChangePasswordService pwdSvc = new ChangePasswordService();
+		pwdSvc.setMemberDao(memberDao());
+		return pwdSvc;
+	}
+	
+}
+~~~
+<br/>
+
+위 코드에선 생성자를 이용해서 의존 주입하거나, setter메서드를 이용해서 의존 주입하였습니다.
+
+이번에는 저런 과정 없이 자동으로 의존 주입을 해보는 방법을 알아보겠습니다.
+
+바로 "@Autowired" 어노테이션을 이용하는 방법입니다.
+
+Autowired 어노테이션이 붙어있으면 스프링이 해당 타입의 빈 객체를 찾아서 필드에 알아서 할당합니다.
+
+예제 코드를 보겠습니다.
+
+~~~java
+package spring;
+
+import org.springframework.beans.factory.annotation.Autowired;
+
+public class ChangePasswordService {
+
+	@Autowired
+	private MemberDao memberDao;
+
+	public void changePassword(String email, String oldPwd, String newPwd) {
+		Member member = memberDao.selectByEmail(email);
+		if (member == null)
+			throw new MemberNotFoundException();
+
+		member.changePassword(oldPwd, newPwd);
+
+		memberDao.update(member);
+	}
+
+	public void setMemberDao(MemberDao memberDao) {
+		this.memberDao = memberDao;	}
+}
+~~~
+<br/>
+
+위 코드는 ChangePasswordService 클래스입니다.
+
+클래스 안에 보시면 private MemberDao memberDao; 라고 필드에 MemberDao 객체가 있습니다.
+
+그 위를 보시면 Autowired 어노테이션이 있습니다.
+
+저렇게 함으로써 ChangePasswordService 객체를 생성하면 memberDao에 빈 객체가 자동으로 할당됩니다.
+
+그렇게 되면 AppCtx 클래스는 다음과 같이 수정할 수 있습니다.
+
+~~~java
+public class AppCtx {
+
+	@Bean
+	public MemberDao memberDao() {
+		return new MemberDao();
+	}
+	
+	@Bean
+	public MemberRegisterService memberRegSvc() {
+		return new MemberRegisterService(memberDao());
+	}
+	
+	@Bean
+	public ChangePasswordService changePwdSvc() {
+		ChangePasswordService pwdSvc = new ChangePasswordService();
+		//pwdSvc.setMemberDao(memberDao()); --> 이 부분이 필요 없어짐.
+		return pwdSvc;
+	}
+	
+}
+~~~
+<br/>
+
+위 코드에서 달라진 부분은 changePwdSvc 메서드 입니다.
+
+중간에 pwdSvc.setMemberDao(memberDao()); 부분이 없어졌습니다.
+
+없어진 이유는 ChangePasswordService 객체를 생성하면 스프링이 자동으로 객체를 주입해 주기 때문입니다.
+
+그리고 이건 memberDao에 Bean 어노테이션이 붙어 있기에 가능한 겁니다.
+
+만약 없다면 스프링은 memberDao 빈을 찾지 못하기 때문에 에러가 납니다.
+
+필드에 Autowired 어노테이션을 붙이는 방법 말고도 setter 메서드에 붙이는 방법이 있습니다.
+
+~~~java
+package spring;
+
+import org.springframework.beans.factory.annotation.Autowired;
+
+public class ChangePasswordService {
+
+	private MemberDao memberDao;
+
+	public void changePassword(String email, String oldPwd, String newPwd) {
+		Member member = memberDao.selectByEmail(email);
+		if (member == null)
+			throw new MemberNotFoundException();
+
+		member.changePassword(oldPwd, newPwd);
+
+		memberDao.update(member);
+    }
+    
+    @Autowired
+	public void setMemberDao(MemberDao memberDao) {
+		this.memberDao = memberDao;	}
+}
+~~~
+<br/>
+
+위와 코드는 ChangePasswordService 클래스에 필드 대신에 setter 메서드에 Autowired 어노테이션을 붙인 코드입니다.
+
+메서드에 Autowired 어노테이션을 붙인다면 메서드의 파라미터 타입에 해당하는 빈 객체를 찾아서 인자로 주입합니다.
+
+<br/>
+
+만약 스프링 컨테이너에 일치하는 빈이 없다면 오류가 나타나니 주의하시길 바랍니다.
+
+<br/>
+<br/>
+
+## @Qualifier
+
+스프링에선 동일한 타입의 빈이 2개 이상 존재할 경우 구분할 수 있도록 한정자를 제공합니다.
+
+Qualifier 어노테이션입니다.
+
+스프링은 Autowired 어노테이션이 붙은 필드나 메서드가 나오면 스프링 컨테이너에서 관리하는 빈 객체를 찾습니다.
+
+만약 빈 타입이 같은 것이 2개 이상 존재하면 Exception이 발생합니다. 스프링이 어떤 빈을 객체에 할당할 지정하지 못하는 것이죠.
+
+<br/>
+
+
+예를 들어 다음과 같은 상황이 있다고 생각해 봅니다.
+
+~~~java
+public class MemberPrinter {
+	...
+}
+public class MemberSummaryPrinter extends MemberPrinter {
+	...
+}
+
+public class MemberInfoPrinter {
+
+	private MemberDao memDao;
+	private MemberPrinter printer;
+	...
+
+	@Autowired
+	public void setMemberDao(MemberDao memberDao) {
+		this.memDao = memberDao;
+	}
+
+	@Autowired
+	public void setPrinter(MemberPrinter printer) {
+		this.printer = printer;
+	}
+}
+~~~
+<br/>
+
+MemberPrinter 클래스와 MemberPrinter를 상속받은 MemeberSuummaryPrinter가 스프링 컨테이너에 관리되고 있다고 가정해봅시다.
+
+이때 문제는 MemberInfoPrinter 클래스에서 setPrinter 를 이용해 의존 주입 시킬 때 발생합니다.
+
+setPrinter를 보시면 MemberPrinter 타입에 Autowired 어노테이션을 통해 자동으로 의존 주입을 합니다.
+
+그런데 스프링에는 MemberPrinter 타입과 MemberSummaryPrinter 타입 둘다 있고, MemberPrinter 타입은 둘다 할당할 수 있기 때문에 Exception이 발생합니다. 
+
+스프링은 둘 중 어떤 빈을 자동으로 주입시켜 줘야하는지 모르기 때문이죠.
+
+그때 Qualifier 어노테이션을 사용하면 해결할 수 있습니다.
+
+~~~java
+public class AppCtx {
+	...
+
+	@Bean
+	@Qualifier("printer")
+	public MemberPrinter memberPrinter() {
+		return new MemberPrinter();
+	}
+}
+
+public class MemberInfoPrinter {
+	...
+
+	@Autowired
+	@Qualifier("printer")
+	public void setPrinter(MemberPrinter printer) {
+		this.printer = printer;
+	}
+}
+~~~
+<br/>
+
+Qualifier를 이용해 "printer"라는 한정자를 만들어줬기 때문에 스프링은 memberPrinter를 자동으로 할당해 줄 수 있습니다.
+
+<br/>
+<br/>
+
+## Autowired 어노테이션의 필수 여부
+
+Autowired 어노테이션을 사용했는데 스프링에 해당 타입의 빈이 존재하지 않는 경우 Exception이 발생합니다.
+
+만약 오류를 발생시키지 않고 처리하고 싶다면 Autowired 어노테이션에 속성을 정해주면 됩니다.
+
+> @Autowired(required = false)
+
+<br/>
+
+위와같이 해주면 일치하는 빈이 없을 경우에도 Exception을 발생시키지 않고 자동 주입을 수행하지 않습니다.
+
+<br/>
+<br/>
+
+## 정리
+
+이번 포스팅에서는 의존 자동 주입에 대해 알아보았습니다.
+
+의존하는 클래스를 이용하기 위해 Autowired 어노테이션을 필드나 setter 메서드에 붙여서 스프링에 등록 되어있는 빈을 자동으로 의존 주입할 수 있었습니다.
+
+다음 포스팅에서는 컴포넌트 스캔에 대해서 알아보겠습니다.
+
+<br/>
+<br/>
