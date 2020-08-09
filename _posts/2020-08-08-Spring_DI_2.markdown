@@ -246,5 +246,6 @@ MemberRegisterService를 반환할 때 MemberRegisterService의 인자로 member
 
 그리고 스프링 컨테이너에서 관리하려는 객체를 반환하는 메서드 위에 "Bean" 어노테이션을 붙여서 사용했습니다.   
 
-다음 포스팅에서는 의존 자동 주입에 대해 알아보겠습니다.   
+다음 포스팅에서는 의존 자동 주입에 대해 알아보겠습니다.  
+다음 포스팅: <https://jh9875.github.io/archivers/Spring_DI_3>
 <br/>
