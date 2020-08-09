@@ -1,0 +1,112 @@
+---
+layout: post
+title:  "[Baekjoon] 2193번: 이친수"
+date:   2020-08-09
+categories: PROBLEM_SOLVING
+permalink: /archivers/boj2193
+tags: [dp]
+---
+
+## 문제
+
+0과 1로 이루어진 수를 이진수라 한다. 이진수 중 어떤 특별한 성질을 같은 것을 이친수(pinary number)라고 한다.
+
+이친수의 성질은 다음과 같다.
+
+- 0으로 시작하지 않는다.
+- 1이 연속으로 등장하지 않는다.
+
+문제의 입력으로 이친수의 자릿수가 주어질 때, 자릿수에 맞는 이친수는 몇개가 있는지 출력하시오.
+
+문제 링크 : <https://www.acmicpc.net/problem/2193>   
+
+## 풀이
+
+기본적인 탐색과 메모이제이션을 알면 쉽게 풀 수 있는 문제입니다.
+
+저는 모든 이친수를 탐색하기 위해 다음과 같은 함수를 작성했습니다.
+
+~~~java
+static int solve(int index, int prevNum) {
+	if(index ==N) 
+		return 1;
+	int ret = 0;
+
+	ret += prevNum ==0? solve(index+1, 0) + solve(index+1, 1): solve(index+1, 0);
+
+	return ret;
+}
+~~~
+<br/>
+
+위 코드는 간단합니다. 메서드의 파라미터는 자릿수를 알기위해 index를 사용했고, 1이 연속해서 나오면 안되므로 prevNum이라는 변수를 이용했습니다.
+
+만약 인덱스가 N자리가 되면 1을 반환해 한가지 경우 셌습니다.
+
+그리고 그 밑엔 삼항 연산자를 사용해서 11이 되는 조건을 피했습니다.
+
+만약 이전에 나온 숫자가 0이라면 그 다음 인덱스에 올 숫자는 0, 1 모두가 됩니다.
+
+그렇기 때문에 다음에 올 0의 경우의 수와 1의 경우의 수를 모두 세어준 것입니다.
+
+만약 이전에 나온 숫자가 1이라면 다음 인덱스에는 0만이 올 수 있습니다.
+
+<br/>
+
+이 문제는 모든 경우를 탐색하는 문제이므로 중복 계산이 많습니다.
+
+모든 경우의 수를 탐색하면 시간초과가 뜰 수 있기 때문에 메모이제이션을 이용해서 풀면 됩니다.
+
+~~~java
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.util.Arrays;
+
+public class Main {
+
+	static int N;
+	static long[][] cache;
+
+	public static void main(String[] args) throws Exception {
+		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+		BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
+
+		N =Integer.parseInt(br.readLine());
+		cache =new long[N+1][2];
+		for(int i =0; i <N+1; i++)
+			Arrays.fill(cache[i], -1);
+
+		bw.write(solve(1, 1) +"\n");
+		bw.flush();
+		bw.close();
+		br.close();
+	}
+
+	static long solve(int index, int prevNum) {
+		if(index ==N) 
+			return 1;
+			if(cache[index][prevNum] !=-1)
+				return cache[index][prevNum];
+		long ret = 0;
+
+		ret += prevNum ==0? solve(index+1, 0) + solve(index+1, 1): solve(index+1, 0);
+
+		return cache[index][prevNum] =ret;
+	}
+}
+
+~~~
+<br/>
+
+전체 코드를 보면 위와 같습니다.
+
+cache라는 2차원 long형 배열을 선언해서 중복계산을 처리해 주었습니다.
+
+그리고 문제의 입력이 최대 90이기 때문에 모든 경우의 수를 합하면 int형 범위를 넘습니다.
+
+그래서 long으로 바꿔주시면 됩니다.
+
+<br/>
+<br/>
