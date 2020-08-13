@@ -1,0 +1,210 @@
+---
+layout: post
+title:  "[Spring] AOP (2)"
+date:   2020-08-13
+categories: SPRING
+permalink: /archivers/Spring_AOP_2
+tags: [spring, java, AOP]
+---
+
+## 머릿말
+
+지난 포스팅에서는 AOP가 필요한 이유에 대해서 알아보았습니다.  
+(지난 포스팅: <https://jh9875.github.io/archivers/Spring_AOP_1>)
+
+이번 포스팅에서는 스프링에서 제공하는 AOP에 대해서 알아보겠습니다.
+
+(이번 포스팅에서 사용하는 코드는 최범균님의 "초보 웹 개발자를 위한 스프링5 프로그래밍 입문" 코드를 활용했습니다.)   
+<br/>
+<br/>
+
+## 스프링의 AOP
+
+지난 포스팅에서 AOP를 하기 위해서 클래스를 구현해 줬습니다.
+
+이번에는 스프링을 이용해서 AOP 구현해 보겠습니다.
+
+부가적인 공통 기능을 구현한 프록시 객체를 구현한 클래스는 아래 코드와 같습니다.
+
+~~~java
+...
+
+@Aspect
+public class ExeTimeAspect {
+
+	@Pointcut("execution(public * chap07..*(..))")
+	private void publicTarget() {
+	}
+
+	@Around("publicTarget()")
+	public Object measure(ProceedingJoinPoint joinPoint) throws Throwable {
+		long start = System.nanoTime();
+		try {
+			Object result = joinPoint.proceed();
+			return result;
+		} finally {
+			long finish = System.nanoTime();
+			Signature sig = joinPoint.getSignature();
+			System.out.printf("%s.%s(%s) 실행 시간 : %d ns\n",
+					joinPoint.getTarget().getClass().getSimpleName(),
+					sig.getName(), Arrays.toString(joinPoint.getArgs()),
+					(finish - start));
+		}
+	}
+
+}
+~~~
+
+<br/>
+
+지난 포스팅에서 핵심기능은 factorial을 측정하는 것이고, 부가적인 공통기능은 시간을 측정하는 것이었죠.
+
+근데 이번에 공통 기능을 작성한 코드는 지난번에 작성한 코드랑은 다른 부분이 많습니다.
+
+익숙하지 않은 어노테이션도 많고 객체도 있습니다.
+
+이제 밑에서 하나씩 보겠습니다.
+
+<br/>
+<br/>
+
+## 코드 분석
+
+일단 어노테이션부터 보겠습니다.
+
+@Aspect, @Pointcut, @Around 등이 있습니다.
+
+각각이 의미하는 것은 다음과 같습니다.
+
+- Aspect: 해당 클래스가 공통으로 적용되는 기능을 구현한 클래스임을 알려줍니다.
+- Pointcut: 공통 기능을 적용할 대상을 설정합니다.
+- Around: Advivce의 한 종류입니다. Advice란 언제 공통 관심 기능을 핵심 로직에 적용할 지를 정의하는 것입니다. Around는 대상 객체의 메서드 실행 전, 후 또는 익셉션 발생 시점에 공통 기능이 실행됩니다.
+
+<br/>
+
+위에서 코드에서 ExeTimeAspect 클래스 위에 @Aspect 어노테이션을 사용했습니다.
+
+ExeTimeAspect 클래스를 공통 기능을 구현한 클래스임을 의미합니다.
+
+<br/>
+
+그리고 mesure() 메서드 위에 @Around 어노테이션을 사용했습니다.
+
+@Around어노테이션 안에 "publicTarget()"이 값으로 있습니다.
+
+이는 publicTarget() 메서드에 정의한 Pointcut에 공통 기능을 대상 객체의 메서드 실행 전, 후 또는 익셉션 발생 시점에 공통 기능을 적용하겠다는 것을 의미합니다.
+
+<br/>
+
+publicTarget() 메서드는 구현 내용은 없고 그 위에 @Pointcut 어노테이션만 있습니다.
+
+@Pointcut 어노테이션은 값으로 execution 명시자가 있고, 그 뒤로 어떠한 값이 더 있습니다.
+
+execution 명시자는 Adcide를 적용할 메서드를 지정할 때 사용합니다.
+
+~~~java
+@Pointcut("execution(public * chap07..*(..))")
+~~~
+
+<br/>
+
+execution 명시자 안에 들어갈 수 있는 값들은 다음과 같습니다.
+
+> execution(수식어패턴? 리턴타입패턴 클래스이름패턴?메서드이름패턴(파라미터패턴))
+
+위 코드에서 의미하는 것은 public 메서드이면서 리턴타입은 아무것이나 가능하고, chap07에 속한 모든 메서드이면서 파라미터가 0개 이상인 것을 의미합니다.
+
+즉 chap07 패키지와 그 하위 패키지에 위치한 public 메서드를 Pointcut으로 지정함을 의미합니다.
+
+<br/>
+
+어노테이션들 외에 익숙하지 않은 객체가 있습니다.
+
+ProceedingJoinPoint 객체입니다.
+
+이 객체는 프록시 대상 객체를 이용할 때 사용합니다.
+
+이전 포스팅에서 사용한 예제에서는 factorial을 수행하는 함수가 되겠죠.
+
+proceed() 함수를 실행함으로써 실제 기능을 담당하는 함수를 수행합니다.
+
+뿐만 아니라 호출되는 대상 객체에 대한 정보 등 여러가지를 제공합니다.
+
+제공하는 메서드는 아래와 같습니다.(반환형 함수이름)
+
+- Signature getSignature() : 호출되는 메서드에 대한 정보를 구합니다.
+- Object getTarget(): 대상 객체를 구합니다.
+- Object[] getArgs(): 파라미터 목록을 구합니다.
+
+위 코드에서도 getTarget(), getArgs() 메서드 등을 이용해서 대상 객체의 정보를 이용하고 있습니다.
+
+<br/>
+
+공통 기능을 설정하기 위한 코드는 아래와 같습니다.
+
+~~~java
+...
+
+@Configuration
+@EnableAspectJAutoProxy
+public class AppCtx {
+	@Bean
+	public ExeTimeAspect exeTimeAspect() {
+		return new ExeTimeAspect();
+	}
+	...
+}
+~~~
+
+<br/>
+
+@EnableAspectJAutoProxy 어노테이션을 붙임으로써 @Aspect 어노테이션을 붙인 클래스를 공통 기능으로 적용합니다.
+
+또한 이 어노테이션은 @Aspect 어노테이션이 붙은 빈 객체를 찾아서 Pointcut과 Around를 설정합니다.
+
+<br/>
+<br/>
+
+## 프록시 생성 방식
+
+지난 포스팅에서 프록시에 대해서 설명했습니다.
+
+"프록시란 핵심 기능은 다른 객체가 실행하고, 부가적인 기능을 실행하는 객체를 프록시라고 합니다."
+
+라고 했었는데요, 스프링에서도 공통기능을 수행하는 객체를 실행시키면 프록시 객체가 생성됩니다.
+
+다음과 같이 코드를 실행해보겠습니다.
+
+~~~java
+...
+
+Calculator cal =ctx.getBean("calculator", Calculator.class);
+
+..
+~~~
+
+<br/>
+
+위와 같이 코드를 실행시키면 cal 변수에는 프록시 객체가 할당됩니다.
+
+스프링에선 AOP를 위한 프록시 객체를 생성할 때 생성할 빈 객체가 인터페이스를 상속하면 인터페이스를 이용해서 프록시를 생성합니다.
+
+그러므로 위 상황에선 Calculator 인터페이스를 이용해서 프록시 객체를 생성합니다.(이번 예제에서 핵심 기능을 구현한 RecCalculator는 Calculator 인터페이스를 상속받았습니다.)
+
+만약 인터페이스가 아닌 클래스를 이용해서 프록시를 생성하고 싶다면 @EnableAspectJAutoProxy(proxyTargetClass =true)와 같이 해주면 됩니다.
+
+<br/>
+<br/>
+
+## 정리
+
+스프링에서는 핵심 기능과 공통으로 사용되는 부가기능을 분리해 구현하기 위해서 AOP를 지원합니다.
+
+그 중 공통기능으로 이용할 클래스에는 @Aspect 어노테이션이 붙었고, @Pointcut 어노테이션으로 대상 객체를 설정했습니다.
+
+Advice를 설정하기 위해 @Around를 주로 사용됩니다. Around 안에는 메서드 이름이 들어가는데 이는 타겟 메서드 호출 전, 후에 공통 기능을 수행함을 의미합니다.
+
+기능을 구현한 코드를 빈 객체를 이용해 사용하면 스프링에서는 프록시 객체를 이용하여 기능을 이용합니다.
+
+<br/>
+<br/>
