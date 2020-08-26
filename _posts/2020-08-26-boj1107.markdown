@@ -1,0 +1,153 @@
+---
+layout: post
+title:  "[Baekjoon] 1107번: 리모컨"
+date:   2020-08-26
+categories: PROBLEM_SOLVING
+permalink: /archivers/boj1107
+tags: [simulation]
+---
+
+## 문제
+
+리모컨을 이용해서 최소한의 버튼을 눌러 원하는 채널로 이동하는 문제입니다.
+
+문제의 입력으로 원하는 채널 N이 주어지고 그 다음줄에 고장난 버튼의 수 M과 그 밑줄에 M개의 수가 주어집니다.
+
+처음 채널의 기본 값은 100입니다.
+
+채널의 이동은 가능한 번호를 누르는 것 외에 +, -버튼으로 한채널씩 이동이 가능합니다.
+
+문제 링크 : <https://www.acmicpc.net/problem/1107>
+
+## 풀이
+
+어떻게 보면 단순하게 보이지만 찾지 못한 예외때문에 많이 틀리는 문제인것 같습니다.
+
+저는 문제를 해결하기 위해 다음과 같은 함수를 이용했습니다.
+
+~~~java
+static int solve() {
+		int ret =Math.abs(N-100);		//+, -만 누르는 경우.
+		if(buttons[0]) {				//0번을 누를 수 있을경우 0번 시작하는 경우.
+			ret =Math.min(ret, N+1);
+		}
+		for(int i =1; i <10; i++) {		//다른 숫자로 시작하는 경우.
+			if(buttons[i]) {
+				ret =Math.min(ret, pressButton(i) +1);
+			}
+		}
+		return ret;
+	}
+	
+	static int pressButton(int ch) {
+		int ret =987654321;
+		if(ch >5000000)
+			return ret;
+		if(ch ==N)
+			return 0;
+		
+		for(int i =0; i <10; i++) {
+			if(buttons[i])
+				ret =Math.min(ret, pressButton(ch*10 +i) +1);
+		}
+		ret =Math.min(ret, Math.abs(N-ch));			//현재 채널에서 +, -버튼
+		return ret;
+	}
+~~~
+<br/>
+
+위에소 solve는 몇가지 경우를 처리하기 위한 함수이고, pressButton은 숫자와 +,-버튼을 누르는 것을 처리하기 위한 함수입니다.
+
+일단 solve를 보면 가장 먼저 Math.abc(N-100)으로 초기화 하는 이유는 현재 채널(100)에서 +, -버튼만 눌러서 갈 수 있는 경우를 고려한 것입니다.
+
+그리고 그 밑에는 button 0번을 누를 수 있는 경우입니다.
+
+그리고 그 밑에는 1에서 9번까지 버튼 중 누를 수 있는 버튼을 눌러서 시작하는 부분입니다.
+
+0부터 시작하지 않는 이유는 pressButton을 무한히 재귀호출 할수 있기 때문입니다.
+
+<br/>
+
+그리고 pressButton을 보겠습니다.
+
+이 함수는 숫자와 +,- 버튼을 눌러서 원하는 채널을 찾는 함수입니다.
+
+가장 위에 있는 조건을 보면 if(ch >5000000)입니다.
+
+500000이 아니라 5000000으로 한 이유는 원하는 채널이 최대 500000이라도 더 큰 채널을 누른 후 -버튼으로 찾아갈 수 있기 때문입니다.
+
+그리고 밑에 for문을 통해 또다른 버튼을 누르면서 함수를 재귀호출 합니다.
+
+그리고 그 밑에는 Math.abc(N-ch)를 통해 현재 버튼을 누른 채널에서 +,-만 누르는 경우를 고려했습니다.
+
+<br/>
+
+전체코드
+
+~~~java
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.util.Arrays;
+import java.util.StringTokenizer;
+
+public class Main {
+
+	static int N;
+	static boolean[] buttons =new boolean[10];
+
+	public static void main(String[] args) throws Exception {
+		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+		BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
+		StringTokenizer st;
+		int M;
+		Arrays.fill(buttons, true);
+
+		N =Integer.parseInt(br.readLine());
+		M =Integer.parseInt(br.readLine());
+		if(M !=0) {
+			st =new StringTokenizer(br.readLine());
+			while(st.hasMoreTokens())
+				buttons[Integer.parseInt(st.nextToken())] =false;
+		}
+		
+		bw.write(solve() +"\n");
+		bw.flush();
+		bw.close();
+		br.close();
+	}
+
+	static int solve() {
+		int ret =Math.abs(N-100);		//+, -만 누르는 경우.
+		if(buttons[0]) {				//0번을 누를 수 있을경우 0번 시작하는 경우.
+			ret =Math.min(ret, N+1);
+		}
+		for(int i =1; i <10; i++) {		//다른 숫자로 시작하는 경우.
+			if(buttons[i]) {
+				ret =Math.min(ret, pressButton(i) +1);
+			}
+		}
+		return ret;
+	}
+	
+	static int pressButton(int ch) {
+		int ret =987654321;
+		if(ch >5000000)
+			return ret;
+		if(ch ==N)
+			return 0;
+		
+		for(int i =0; i <10; i++) {
+			if(buttons[i])
+				ret =Math.min(ret, pressButton(ch*10 +i) +1);
+		}
+		ret =Math.min(ret, Math.abs(N-ch));			//현재 채널에서 +, -버튼
+		return ret;
+	}
+
+}
+
+~~~
+
+<br/>
