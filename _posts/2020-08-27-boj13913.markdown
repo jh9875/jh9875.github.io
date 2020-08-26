@@ -1,0 +1,220 @@
+---
+layout: post
+title:  "[Baekjoon] 13913번: 숨바꼭질 4"
+date:   2020-08-26
+categories: PROBLEM_SOLVING
+permalink: /archivers/boj13913
+tags: [bfs]
+---
+
+## 문제
+
+수빈이와 동생이 숨바꼭질을 하고있습니다.
+
+숨바꼭질 하는 공간이 일직선상의 공간이라고 하고 범위는 0부터 100,000까지 있습니다.
+
+수빈이는 걷거나 순간이동을 할 수 있는데, 수빈이의 위치가 X일때 1초의 시간동안 X+1, X-1만큼 걷거나 2*X만큼 순간이동 할 수 있습니다.
+
+문제의 입력으로 처음 수빈이와 동생의 위치인 N과 K가 주어집니다.
+
+수빈이가 동생을 찾을 수 있는 가장 빠른 시간이 몇 초 후인지 구하는 프로그램을 작성하는 문제입니다.
+
+문제 링크 : <https://www.acmicpc.net/problem/13913>
+
+## 풀이
+
+문제에서 출발지에서 목적지까지 최단 거리를 찾고 있습니다.
+
+이동할 때 모두 가중치가 1이기 때문에 bfs로 해결할 수 있습니다.
+
+저는 처음에 문제를 풀때 Queue를 사용할 자료형으로 <int pos, ArrayList path>를 넣고 경로를 저장해가며 해결하려 했습니다.
+
+하지만 정답은 맞을 수 있으나 시간이 오래걸려 시간 초과가 나왔습니다.
+
+이럴 경우에 시간과 메모리를 절약할 수 있는 방법이 있습니다.
+
+경로들을 배열에 기록해두는 방법입니다.
+
+일단 bfs함수부터 보겠습니다.
+
+~~~java
+static int bfs() {
+	Queue<Subin> queue = new LinkedList<>();
+	boolean[] visited = new boolean[100001];
+	int[] record =new int[100001];
+	queue.add(new Subin(N, 0));
+	visited[N] = true;
+
+	while (!queue.isEmpty()) {
+		int pos = queue.peek().pos;
+		int time =queue.peek().time;
+		queue.poll();
+
+		if (pos == K) {
+			findPath(record, K);
+			return time;
+		}
+		if (pos * 2 <= 100000 && !visited[pos * 2]) {
+			visited[pos * 2] = true;
+			record[pos*2] =pos;
+			queue.add(new Subin(pos * 2, time+1));
+		}
+		if (pos - 1 >= 0 && !visited[pos - 1]) {
+			visited[pos - 1] = true;
+			record[pos-1] =pos;
+			queue.add(new Subin(pos - 1, time+1));
+		}
+		if (pos + 1 <= 100000 && !visited[pos + 1]) {
+			visited[pos + 1] = true;
+			record[pos+1] =pos;
+			queue.add(new Subin(pos + 1, time+1));
+		}
+	}
+
+	return -1;
+}
+
+~~~
+<br/>
+
+위 함수는 보통 bfs를 사용하는 함수와 다를게 없습니다.
+
+다만 위에서 record라는 int형 배열이 있습니다.
+
+이 배열이 경로를 기록해 줄겁니다.
+
+일단 수빈이가 순간이동하는 경우를 보겠습니다.
+
+~~~java
+if (pos * 2 <= 100000 && !visited[pos * 2]) {
+	visited[pos * 2] = true;
+	record[pos*2] =pos;
+	queue.add(new Subin(pos * 2, time+1));
+}
+~~~
+<br/>
+
+가장먼저 최대 범위인 100000을 넘지 않는가를 확인합니다.
+
+그 다음으로 중복된 길을 가지 않기위해 visited라는 boolean배열을 이용합니다.
+
+그리고 record[pos*2] =pos로 경로를 기록합니다.
+
+이것은 pos*2의 이전에 pos에서 왔다는 것을 의미합니다.
+
+마찬가지로 걸을때도 record[pos+1] =pos, record[pos-1] =pos로 기록합니다.
+
+이렇게 기록하면 경로가 역순으로 기록됩니다.
+
+그럼 다음과 같은 함수로 경로를 얻을 수 있습니다.
+
+~~~java
+static void findPath(int[] arr, int n) {
+	if(n ==N)
+		return;
+	reversePath.add(n);
+	findPath(arr, arr[n]);
+}
+~~~
+<br/>
+
+위 함수의 호출부분은 bfs함수에서 보듯이 최종 도착지를 이용해서 호출합니다.
+
+그렇게 되면 record[최종도착지]에는 이전 위치가 기록되어 있고, 계속 따라가다 보면 시작위치 다음까지 도달할 수 있습니다.
+
+<br/>
+
+전체 코드
+~~~java
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.util.LinkedList;
+import java.util.Queue;
+import java.util.Stack;
+import java.util.StringTokenizer;
+
+public class Main {
+
+	static class Subin {
+		int pos;
+		int time;
+
+		Subin(int pos, int time) {
+			this.pos = pos;
+			this.time =time;
+		}
+	}
+
+	static int N, K;
+	static Stack<Integer> reversePath =new Stack<>();
+
+	public static void main(String[] args) throws Exception {
+		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+		BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
+		StringTokenizer st;
+
+		st = new StringTokenizer(br.readLine());
+		N = Integer.parseInt(st.nextToken());
+		K = Integer.parseInt(st.nextToken());
+
+		int time = bfs();
+		bw.write(time + "\n");
+		bw.write(N +" ");
+		while(!reversePath.isEmpty())
+			bw.write(reversePath.pop() +" ");
+		bw.flush();
+		bw.close();
+		br.close();
+	}
+
+	static int bfs() {
+		Queue<Subin> queue = new LinkedList<>();
+		boolean[] visited = new boolean[100001];
+		int[] record =new int[100001];
+		queue.add(new Subin(N, 0));
+		visited[N] = true;
+
+		while (!queue.isEmpty()) {
+			int pos = queue.peek().pos;
+			int time =queue.peek().time;
+			queue.poll();
+
+			if (pos == K) {
+				findPath(record, K);
+				return time;
+			}
+			if (pos * 2 <= 100000 && !visited[pos * 2]) {
+				visited[pos * 2] = true;
+				record[pos*2] =pos;
+				queue.add(new Subin(pos * 2, time+1));
+			}
+			if (pos - 1 >= 0 && !visited[pos - 1]) {
+				visited[pos - 1] = true;
+				record[pos-1] =pos;
+				queue.add(new Subin(pos - 1, time+1));
+			}
+			if (pos + 1 <= 100000 && !visited[pos + 1]) {
+				visited[pos + 1] = true;
+				record[pos+1] =pos;
+				queue.add(new Subin(pos + 1, time+1));
+			}
+		}
+
+		return -1;
+	}
+
+	static void findPath(int[] arr, int n) {
+		if(n ==N)
+			return;
+		reversePath.add(n);
+		findPath(arr, arr[n]);
+	}
+}
+
+~~~
+
+<br/>
+
+
