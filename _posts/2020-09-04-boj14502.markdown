@@ -1,0 +1,254 @@
+---
+layout: post
+title:  "[Baekjoon] 14502번: 연구소"
+date:   2020-09-04
+categories: PROBLEM_SOLVING
+permalink: /archivers/boj14502
+tags: [bfs, brute_force]
+---
+
+## 문제
+
+연구소에 바이러스가 최대한 퍼지지 않게하기 위해 벽을 3개 세워야하는 문제입니다.
+
+연구소는 N x M 크기의 직사각형으로 나타내고, 각 직사각형은 1 x 1 크기입니다.
+
+0은 빈공간, 1은 벽, 2는 바이러스를 나타냅니다.
+
+벽을 꼭 3개를 세워서 바이러스가 최대한 덜 퍼지게 해야합니다.
+
+문제 링크 : <https://www.acmicpc.net/problem/14502>
+
+## 풀이
+
+일단 저는 문제를 다음과 같은 순서로 풀었습니다.
+
+- 벽을 어디에 세워야 할지 모르므로 모든 경우의 수를 탐색한다.
+- 벽이 3개가 세워지면 바이러스를 퍼트린다.
+- 바이러스가 퍼진 후 빈칸의 갯수를 구한다.
+
+위 과정을 반복했습니다.
+
+일단 가장 먼저 벽을 세우는 함수는 다음과 같습니다.
+
+~~~java
+static int makeWall(int rest) {
+	if (rest == 0) {
+		int[][] copyMap = new int[N][M];
+		for(int i =0; i <N; i++)
+			System.arraycopy(map[i], 0, copyMap[i], 0, M);
+		spreadVirus(copyMap);
+		return countSafeArea(copyMap);
+	}
+	int ret = 0;
+	
+    for (int i = 0; i < N; i++) {
+		for (int j = 0; j < M; j++) {
+			if (map[i][j] == 0) {
+				map[i][j] = 1;
+				ret = Math.max(ret, makeWall(rest - 1));
+				map[i][j] = 0;
+			}
+		}
+	}
+	return ret;
+}
+~~~
+<br/>
+
+위 코드를 보시면 함수의 파라미터는 rest입니다.
+
+즉 함수를 재귀적으로 호출하며 3개를 다 세우면 바이러스를 퍼트리고, 안전영역의 수를 구합니다.
+
+모든 경우의 수를 탐색하기 위해 map[i][j]가 빈공간이면 벽으로 바꿨다가 함수 호출 후 다시 원래대로 돌려줬습니다.
+
+이런식으로 탐색하면 모든 경우의 수를 탐색할 수 있습니다.
+
+<br/>
+
+그 다음은 바이러스를 퍼트리는 함수입니다.
+
+~~~java
+static void spreadVirus(int[][] copy) {
+	Queue<Pos> queue = new LinkedList<>();
+	for(Pos p : virusPos) {
+		int y =p.y;
+		int x =p.x;
+		queue.add(new Pos(y, x));
+	}
+
+	while (!queue.isEmpty()) {
+		int curY = queue.peek().y;
+		int curX = queue.peek().x;
+		queue.poll();
+
+		for (int d = 0; d < 4; d++) {
+			int nextY = curY + dirY[d];
+			int nextX = curX + dirX[d];
+			if (!inRange(nextY, nextX))
+				continue;
+			if (copy[nextY][nextX] == 0) {
+				copy[nextY][nextX] =2;
+				queue.add(new Pos(nextY, nextX));
+			}
+		}
+	}
+}
+~~~
+<br/>
+
+바이러스를 퍼트리는건 bfs를 이용했습니다.
+
+원래 배열을 복사한 map을 만들고, 퍼지는 부분을 2로 표기했습니다.
+
+<br/>
+
+그 다음은 안전영역을 세는 함수입니다.
+
+~~~java
+static int countSafeArea(int[][] copy) {
+	int ret = 0;
+	for (int i = 0; i < N; i++)
+		for (int j = 0; j < M; j++)
+			if (copy[i][j] == 0)
+				ret++;
+	return ret;
+}
+~~~
+<br/>
+
+이 함수는 아주 단순합니다.
+
+그냥 0의 개수를 세면 됩니다.
+
+<br/>
+
+그리고 문제에서 바이러스의 개수가 3개로 정해져있습니다.
+
+spreadVirus 함수를 호출할 때마다 바이러스를 찾으면 시간이 걸리므로 AraayList에 바이러스의 위치를 저장해 두면 시간을 절약할 수 있습니다.
+
+<br/>
+
+전체 코드
+
+~~~java
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.Queue;
+import java.util.StringTokenizer;
+
+public class Main {
+
+	static class Pos {
+		int y, x;
+
+		Pos(int y, int x) {
+			this.y = y;
+			this.x = x;
+		}
+	}
+
+	static int N, M;
+	static int[][] map;
+	static int[] dirY = { 1, 0, -1, 0 };
+	static int[] dirX = { 0, 1, 0, -1 };
+	static ArrayList<Pos> virusPos =new ArrayList<>();
+
+	public static void main(String[] args) throws Exception {
+		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+		BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
+		StringTokenizer st = null;
+
+		st = new StringTokenizer(br.readLine());
+		N = Integer.parseInt(st.nextToken());
+		M = Integer.parseInt(st.nextToken());
+		map = new int[N][M];
+
+		for (int i = 0; i < N; i++) {
+			st = new StringTokenizer(br.readLine());
+			for (int j = 0; j < M; j++) {
+				int n =Integer.parseInt(st.nextToken());
+				if(n ==2)
+					virusPos.add(new Pos(i, j));
+				map[i][j] = n;
+			}
+		}
+
+		bw.write(makeWall(3) + "\n");
+		bw.flush();
+		bw.flush();
+		br.close();
+	}
+
+	static int makeWall(int rest) {
+		if (rest == 0) {
+			int[][] copyMap = new int[N][M];
+			for(int i =0; i <N; i++)
+				System.arraycopy(map[i], 0, copyMap[i], 0, M);
+			spreadVirus(copyMap);
+			return countSafeArea(copyMap);
+		}
+		int ret = 0;
+
+		for (int i = 0; i < N; i++) {
+			for (int j = 0; j < M; j++) {
+				if (map[i][j] == 0) {
+					map[i][j] = 1;
+					ret = Math.max(ret, makeWall(rest - 1));
+					map[i][j] = 0;
+				}
+			}
+		}
+		return ret;
+	}
+
+	static void spreadVirus(int[][] copy) {
+		Queue<Pos> queue = new LinkedList<>();
+		for(Pos p : virusPos) {
+			int y =p.y;
+			int x =p.x;
+			queue.add(new Pos(y, x));
+		}
+
+		while (!queue.isEmpty()) {
+			int curY = queue.peek().y;
+			int curX = queue.peek().x;
+			queue.poll();
+
+			for (int d = 0; d < 4; d++) {
+				int nextY = curY + dirY[d];
+				int nextX = curX + dirX[d];
+				if (!inRange(nextY, nextX))
+					continue;
+				if (copy[nextY][nextX] == 0) {
+					copy[nextY][nextX] =2;
+					queue.add(new Pos(nextY, nextX));
+				}
+			}
+		}
+	}
+
+	static int countSafeArea(int[][] copy) {
+		int ret = 0;
+		for (int i = 0; i < N; i++)
+			for (int j = 0; j < M; j++)
+				if (copy[i][j] == 0)
+					ret++;
+		return ret;
+	}
+
+	static boolean inRange(int y, int x) {
+		if (y < 0 || y >= N || x < 0 || x >= M)
+			return false;
+		return true;
+	}
+}
+
+~~~
+
+<br/>
+<br/>
