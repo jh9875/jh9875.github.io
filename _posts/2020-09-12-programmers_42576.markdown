@@ -3,7 +3,7 @@ layout: post
 title:  "[Programmers] 완주하지 못한 선수"
 date:   2020-09-12
 categories: PROBLEM_SOLVING
-permalink: /archivers/programmers_level1_2
+permalink: /archivers/programmers_42576
 tags: [java, kakao_coding_test]
 ---
 

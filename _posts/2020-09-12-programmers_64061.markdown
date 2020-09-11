@@ -3,8 +3,8 @@ layout: post
 title:  "[Programmers] 크레인 인형뽑기 게임"
 date:   2020-09-12
 categories: PROBLEM_SOLVING
-permalink: /archivers/programmers_level1_1
-tags: [simulation, java, problem_solving, kakao_coding_test]
+permalink: /archivers/programmers_64061
+tags: [simulation, java, kakao_coding_test]
 ---
 
 ## 문제

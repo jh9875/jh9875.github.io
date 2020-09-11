@@ -1,0 +1,99 @@
+---
+layout: post
+title:  "[Programmers] 네트워크"
+date:   2020-09-12
+categories: PROBLEM_SOLVING
+permalink: /archivers/programmers_43162
+tags: [bfs, dfs, java, kakao_coding_test]
+---
+
+## 문제
+
+문제에서 컴퓨터 네트워크를 표현하기 위해 2차원 int 배열을 이용합니다.
+
+각 컴퓨터가 연결되어 있으면 1이고, 아니면 0으로 되어있습니다.
+
+문제의 입력으로 컴퓨터의 개수 n과 2차원 int형 그래프 computers가 주어질 때 연결되어 있는 네트워크 수를 구해야 합니다.
+
+문제 링크 : <https://programmers.co.kr/learn/courses/30/lessons/43162>
+
+## 풀이
+
+문제는 연결되어있는 컴퓨터 네트워크 수를 구하는 문제이므로 그래프를 탐색할 수 있어야 합니다.
+
+문제는 bfs나 dfs로 해결할 수 있습니다.
+
+저는 bfs를 이용했습니다. 제가 만든 함수는 아래와 같습니다.
+
+~~~java
+void bfs(int start, int n, int[][] computers, boolean[] visited) {
+	Queue<Integer> queue = new LinkedList<>();
+	queue.add(start);
+	visited[start] = true;
+
+	while (!queue.isEmpty()) {
+		int here = queue.poll();
+
+		for (int next = 0; next < n; next++) {
+			if (computers[here][next] == 1 && !visited[next]) {
+				queue.add(next);
+				visited[next] = true;
+			}
+		}
+	}
+}
+~~~
+<br/>
+
+함수의 파라미터에서 start는 탐색 시작 위치입니다.
+
+아직 방문하지 않은 컴퓨터를 기준으로 시작합니다.
+
+visited는 방문한 컴퓨터를 확인하기 위한 boolean 배열입니다.
+
+함수는 computers를 이용해서 현재 위치에서 연결되어있는 컴퓨터들을 탐색을 반복하는 방식으로 동작합니다.
+
+<br/>
+
+전체 코드
+
+~~~java
+import java.util.LinkedList;
+import java.util.Queue;
+
+class Solution {
+	public int solution(int n, int[][] computers) {
+		int answer = 0;
+		boolean[] visited = new boolean[n];
+
+		for (int i = 0; i < n; i++) {
+			if (!visited[i]) {
+				answer++;
+				bfs(i, n, computers, visited);
+			}
+		}
+
+		return answer;
+	}
+
+	void bfs(int start, int n, int[][] computers, boolean[] visited) {
+		Queue<Integer> queue = new LinkedList<>();
+		queue.add(start);
+		visited[start] = true;
+
+		while (!queue.isEmpty()) {
+			int here = queue.poll();
+
+			for (int next = 0; next < n; next++) {
+				if (computers[here][next] == 1 && !visited[next]) {
+					queue.add(next);
+					visited[next] = true;
+				}
+			}
+		}
+	}
+}
+~~~
+
+<br/>
+<br/>
