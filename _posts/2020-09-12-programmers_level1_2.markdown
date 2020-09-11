@@ -1,0 +1,62 @@
+---
+layout: post
+title:  "[Programmers] 완주하지 못한 선수"
+date:   2020-09-12
+categories: PROBLEM_SOLVING
+permalink: /archivers/programmers_level1_2
+tags: [java, kakao_coding_test]
+---
+
+## 문제
+
+수많은 마라톤 참가자 중 단 한명만 완주하지 못했습니다.
+
+문제의 입력으로 마라톤 참가자의 이름인 String 배열 participant가 주어지고, 완주자 이름인 String 배열 completion이 주어집니다.
+
+이 중 완주하지 못한 참가자의 이름을 반환해야 합니다.
+
+문제 링크 : <https://programmers.co.kr/learn/courses/30/lessons/42576>
+
+## 풀이
+
+문제 자체는 아주 단순합니다. participant에 있는 이름 중 completion에 없는 이름을 찾으면 됩니다.
+
+해결할 수 있는 방법이 많아서 어떤 방법으로 해결할지 고민되는 문제입니다.
+
+저는 어떻게 해결할지 생각하다가 두 배열을 정렬하면 한가지 다른 부분이 있을거라 생각이 들었습니다.
+
+그래서 두 배열을 Arrays.sort를 이용해 정렬한 뒤 배열의 처음부터 끝까지 비교해 가면서 participant에서 다른 부분을 answer로 저장했습니다.
+
+문제는 만약 다른 부분이 participant의 마지막에 있다면 못찾을 수 있다는 겁니다.
+
+그래서 만약 비교를 끝까지 했다면 participant의 마지막 이름을 반환하도록 했습니다.
+
+<br/>
+
+전체 코드
+
+~~~java
+import java.util.Arrays;
+
+class Solution {
+    public static String solution(String[] participant, String[] completion) {
+		String answer = "";
+		Arrays.sort(participant);
+		Arrays.sort(completion);
+		int index =0;
+		int total =completion.length;
+
+		while(index <total) {
+			if(!participant[index].equals(completion[index])) {
+				answer =new String(participant[index]);
+				break;
+			}
+			index++;
+		}
+        return index ==participant.length-1? participant[index]: answer;
+    }
+}
+~~~
+
+<br/>
+<br/>
