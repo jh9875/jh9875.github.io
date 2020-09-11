@@ -1,0 +1,86 @@
+---
+layout: post
+title:  "[Programmers] 크레인 인형뽑기 게임"
+date:   2020-09-12
+categories: PROBLEM_SOLVING
+permalink: /archivers/programmers_level1_1
+tags: [simulation, java, problem_solving, kakao_coding_test]
+---
+
+## 문제
+
+인형뽑기 게임을 코드로 구현한 문제입니다.
+
+크기가 1 x 1인 인형이 있고, 각 인형은 N x N크기의 칸에 있습니다.
+
+인형을 뽑으면 밑에서 부터 쌓이는 바구니에 담는데 같은 인형이 쌓이면 두개가 없어집니다.
+
+문제의 입력으로 인형이 담겨있는 2차원 int 배열이 주어지고, 몇 번째 칸에 있는 인형을 뽑을 것인지 순서가 적혀있는 int형 배열이 주어집니다.
+
+없어진 인형의 개수를 출력합니다.
+
+문제 링크 : <https://programmers.co.kr/learn/courses/30/lessons/64061>
+
+## 풀이
+
+항상 백준 온라인 저지에서 문제를 풀다가 프로그래머스에서 문제를 푸니 약간 적응하기 어렵습니다.
+
+백준에서는 문제의 입력이 주어지면 출력하는 방식이었는데, 프로그래머스에선 문제를 해결하는 함수인 solution 함수를  정해진 틀에 맞춰서 값을 반환해야 합니다.
+
+아무튼 문제를 풀어보겠습니다.
+
+<br/>
+
+문제를 해결하는 방법은 인형뽑기와 똑같습니다.
+
+제가 생각한 알고리즘은 다음과 같습니다.
+
+- 인형을 작동 시킬 위치가 담긴 배열 moves에서 작동시킬 열 n을 받아옵니다.
+- 인형은 위에서부터 뽑으므로 board[row][n-1]에서 0이 아닐때 까지 row를 1씩 증가시킵니다.
+- 인형이 있다면 뽑아서 basket에 담습니다.
+- basket에 똑같은 인형이 2개 쌓이면 없앱니다.
+  
+위와 같은 방식으로 moves를 끝까지 하면 됩니다.
+
+<br/>
+
+전체 코드
+
+~~~java
+import java.util.Stack;
+
+class Solution {
+	public static int solution(int[][] board, int[] moves) {
+		int answer = 0;
+		int moveNum = moves.length;
+		int boardLen = board.length;
+		Stack<Integer> basket = new Stack<>();
+
+		for (int i = 0; i < moveNum; i++) {
+			int n = moves[i];
+			for (int row = 0; row < boardLen; row++) {
+
+				if (board[row][n-1] != 0) {
+					if(basket.isEmpty()) {
+						basket.add(board[row][n-1]);
+					} else {
+						if(basket.peek() ==board[row][n-1]) {
+							answer +=2;
+							basket.pop();
+						}else {
+							basket.add(board[row][n-1]);
+						}
+					}
+					board[row][n-1] = 0;
+					break;
+				}
+				
+			}
+		}
+		return answer;
+	}
+}
+~~~
+
+<br/>
+<br/>
